@@ -1,16 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { useLanguage } from '../../utils/LanguageContext';
+import { t as getTranslation } from '../../utils/i18n';
 
 export default function TimelinePage() {
+  const { language } = useLanguage();
+  const t = (key) => getTranslation(key, language);
+
   const [selectedCaseType, setSelectedCaseType] = useState('criminal');
   const [expandedStage, setExpandedStage] = useState(null);
   const [currentStage, setCurrentStage] = useState(3);
 
   const caseTypes = [
-    { id: 'criminal', name: 'Criminal Case', description: 'Cases involving crimes and offenses against society' },
-    { id: 'civil', name: 'Civil Case', description: 'Disputes between individuals or organizations' },
-    { id: 'family', name: 'Family Case', description: 'Matters related to marriage, divorce, and child custody' }
+    { id: 'criminal', name: t('timeline.criminalCase'), description: t('timeline.criminalCaseDesc') },
+    { id: 'civil', name: t('timeline.civilCase'), description: t('timeline.civilCaseDesc') },
+    { id: 'family', name: t('timeline.familyCase'), description: t('timeline.familyCaseDesc') }
   ];
 
   const timelineStages = {
@@ -452,17 +457,16 @@ export default function TimelinePage() {
       <div className="container">
         {/* Page Header */}
         <header className="page-header">
-          <h1>Case Journey Timeline</h1>
+          <h1>{t('timeline.pageTitle')}</h1>
           <p className="page-description">
-            Understanding where you are in the legal process and what to expect next. 
-            A calm, non-threatening guide to your case journey.
+            {t('timeline.pageDescription')}
           </p>
         </header>
 
         {/* Case Type Selection */}
         <div className="card">
           <div className="card-header">
-            <h2 className="card-title">Step 1: Select Your Case Type</h2>
+            <h2 className="card-title">{t('timeline.step1Title')}</h2>
           </div>
           <div className="case-type-grid">
             {caseTypes.map(type => (
@@ -484,10 +488,10 @@ export default function TimelinePage() {
         {/* Current Stage Selector */}
         <div className="card">
           <div className="card-header">
-            <h2 className="card-title">Step 2: Where Are You Now?</h2>
+            <h2 className="card-title">{t('timeline.step2Title')}</h2>
           </div>
           <div className="current-stage-selector">
-            <p>Click on the stage that best matches your current situation:</p>
+            <p>{t('timeline.currentStagePrompt')}</p>
             <div className="stage-buttons">
               {timelineStages[selectedCaseType].map((stage) => (
                 <button
@@ -533,7 +537,7 @@ export default function TimelinePage() {
               <div className="stage-meta">
                 <span className="stage-duration">⏱️ {stage.duration}</span>
                 <span className={`stage-status ${currentStage === stage.stage ? 'current' : currentStage > stage.stage ? 'completed' : 'upcoming'}`}>
-                  {currentStage === stage.stage ? '📍 You are here' : currentStage > stage.stage ? '✅ Completed' : '⏳ Upcoming'}
+                  {currentStage === stage.stage ? t('timeline.youAreHere') : currentStage > stage.stage ? t('timeline.completed') : t('timeline.upcoming')}
                 </span>
               </div>
               <span className="expand-icon">{expandedStage === stage.stage ? '−' : '+'}</span>
@@ -543,7 +547,7 @@ export default function TimelinePage() {
               <div className="stage-details">
                 <div className="details-grid">
                   <div className="detail-section">
-                    <h4>📋 What Happens At This Stage</h4>
+                    <h4>📋 {t('timeline.whatHappens')}</h4>
                     <ul>
                       {stage.whatHappens.map((item, index) => (
                         <li key={index}>{item}</li>
@@ -551,7 +555,7 @@ export default function TimelinePage() {
                     </ul>
                   </div>
                   <div className="detail-section">
-                    <h4>✅ What You Need To Do</h4>
+                    <h4>✅ {t('timeline.whatYouNeed')}</h4>
                     <ul>
                       {stage.whatYouNeed.map((item, index) => (
                         <li key={index}>{item}</li>
@@ -559,7 +563,7 @@ export default function TimelinePage() {
                     </ul>
                   </div>
                   <div className="detail-section">
-                    <h4>❌ What You Are NOT Required To Do</h4>
+                    <h4>❌ {t('timeline.whatYouDontNeed')}</h4>
                     <ul>
                       {stage.whatYouDontNeed.map((item, index) => (
                         <li key={index}>{item}</li>
@@ -574,83 +578,78 @@ export default function TimelinePage() {
 
         {/* Time Expectations */}
         <section className="time-expectations">
-          <h2 className="section-title">⏰ Realistic Time Expectations</h2>
+          <h2 className="section-title">⏰ {t('timeline.timeExpectationsTitle')}</h2>
           <div className="time-cards">
             <div className="time-card">
               <div className="time-icon">⚡</div>
-              <h3>Fast Track Cases</h3>
-              <p>3-6 months</p>
-              <span>Minor offenses, simple disputes</span>
+              <h3>{t('timeline.fastTrackCases')}</h3>
+              <p>{t('timeline.fastTrackTime')}</p>
+              <span>{t('timeline.fastTrackDesc')}</span>
             </div>
             <div className="time-card">
               <div className="time-icon">📅</div>
-              <h3>Regular Cases</h3>
-              <p>1-2 years</p>
-              <span>Standard criminal/civil matters</span>
+              <h3>{t('timeline.regularCases')}</h3>
+              <p>{t('timeline.regularTime')}</p>
+              <span>{t('timeline.regularCasesDesc')}</span>
             </div>
             <div className="time-card">
               <div className="time-icon">⏳</div>
-              <h3>Complex Cases</h3>
-              <p>2-5+ years</p>
-              <span>Complicated evidence, appeals</span>
+              <h3>{t('timeline.complexCases')}</h3>
+              <p>{t('timeline.complexTime')}</p>
+              <span>{t('timeline.complexCasesDesc')}</span>
             </div>
           </div>
           <p className="time-note">
-            ⚠️ These are general estimates only. Actual time depends on many factors including court workload, 
-            evidence complexity, and parties involved. Your lawyer can give you a better estimate for your specific case.
+            ⚠️ {t('timeline.timeNote')}
           </p>
         </section>
 
         {/* Emotional Support */}
         <section className="emotional-support">
-          <h2 className="section-title">💚 Taking Care of Yourself</h2>
+          <h2 className="section-title">💚 {t('timeline.selfCareTitle')}</h2>
           <div className="support-grid">
             <div className="support-card">
-              <h3>It's Okay to Feel Overwhelmed</h3>
-              <p>Legal processes can be long and stressful. It's normal to feel anxious, frustrated, or tired. 
-              Taking care of your mental health is important throughout this journey.</p>
+              <h3>{t('timeline.overwhelmedTitle')}</h3>
+              <p>{t('timeline.overwhelmedDesc')}</p>
             </div>
             <div className="support-card">
-              <h3>You Are Not Alone</h3>
-              <p>Many people go through legal processes. Don't hesitate to seek counseling or support from 
-              trusted friends, family, or professional services.</p>
+              <h3>{t('timeline.notAloneTitle')}</h3>
+              <p>{t('timeline.notAloneDesc')}</p>
             </div>
             <div className="support-card">
-              <h3>Take It One Day at a Time</h3>
-              <p>Focus on the next step rather than worrying about the entire journey. 
-              Celebrate small victories and be patient with yourself.</p>
+              <h3>{t('timeline.oneDayTitle')}</h3>
+              <p>{t('timeline.oneDayDesc')}</p>
             </div>
             <div className="support-card">
-              <h3>Ask for Help</h3>
-              <p>If you're struggling, reach out to legal aid organizations, counselors, 
-              or helplines. Asking for help is a sign of strength, not weakness.</p>
+              <h3>{t('timeline.helpTitle')}</h3>
+              <p>{t('timeline.helpDesc')}</p>
             </div>
           </div>
         </section>
 
         {/* Emergency Contacts */}
         <section className="emergency-contacts">
-          <h2 className="section-title">📞 Need Immediate Help?</h2>
+          <h2 className="section-title">📞 {t('timeline.emergencyTitle')}</h2>
           <div className="contacts-grid">
             <div className="contact-card">
-              <h3>Police Emergency</h3>
+              <h3>{t('timeline.policeEmergency')}</h3>
               <p className="contact-number">100</p>
-              <p>For immediate danger or crime reporting</p>
+              <p>{t('timeline.policeEmergencyDesc')}</p>
             </div>
             <div className="contact-card">
-              <h3>Women's Helpline</h3>
+              <h3>{t('timeline.womensHelpline')}</h3>
               <p className="contact-number">181</p>
-              <p>For women in distress</p>
+              <p>{t('timeline.womensHelplineDesc')}</p>
             </div>
             <div className="contact-card">
-              <h3>Child Helpline</h3>
+              <h3>{t('timeline.childHelpline')}</h3>
               <p className="contact-number">1098</p>
-              <p>For children needing help</p>
+              <p>{t('timeline.childHelplineDesc')}</p>
             </div>
             <div className="contact-card">
-              <h3>iCall (Counseling)</h3>
+              <h3>{t('timeline.icall')}</h3>
               <p className="contact-number">9152987821</p>
-              <p>Mental health support</p>
+              <p>{t('timeline.icallDesc')}</p>
             </div>
           </div>
         </section>

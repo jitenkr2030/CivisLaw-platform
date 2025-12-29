@@ -1,8 +1,23 @@
 'use client';
 
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useLanguage, LanguageProvider } from '../utils/LanguageContext';
+import { t } from '../utils/i18n';
 
-export default function LayoutWrapper({ children }) {
+function LayoutContent({ children }) {
+  const { language, changeLanguage, supportedLanguages } = useLanguage();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Update document language attribute
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
+  const handleLanguageChange = (e) => {
+    changeLanguage(e.target.value);
+  };
+
   return (
     <>
       <header className="header">
@@ -10,43 +25,44 @@ export default function LayoutWrapper({ children }) {
           <nav className="nav" role="navigation" aria-label="Main navigation">
             <Link href="/" className="logo" aria-label="CivisLaw Home">
               <span className="logo-icon" aria-hidden="true">⚖️</span>
-              <span className="logo-text">CivisLaw</span>
+              <span className="logo-text">{t('common.civisLaw', language)}</span>
             </Link>
             
             <button 
               className="mobile-menu-toggle" 
-              aria-label="Toggle navigation menu"
-              aria-expanded="false"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={isMenuOpen}
             >
               <span></span>
               <span></span>
               <span></span>
             </button>
             
-            <ul className="nav-links" role="menubar">
+            <ul className={`nav-links ${isMenuOpen ? 'active' : ''}`} role="menubar">
               <li role="none">
-                <Link href="/document-explainer" role="menuitem">
-                  Document Explainer
+                <Link href="/document-explainer" role="menuitem" onClick={() => setIsMenuOpen(false)}>
+                  {t('nav.documentExplainer', language)}
                 </Link>
               </li>
               <li role="none">
-                <Link href="/recorder" role="menuitem">
-                  Statement Recorder
+                <Link href="/recorder" role="menuitem" onClick={() => setIsMenuOpen(false)}>
+                  {t('nav.statementRecorder', language)}
                 </Link>
               </li>
               <li role="none">
-                <Link href="/translator" role="menuitem">
-                  Court Translator
+                <Link href="/translator" role="menuitem" onClick={() => setIsMenuOpen(false)}>
+                  {t('nav.courtTranslator', language)}
                 </Link>
               </li>
               <li role="none">
-                <Link href="/decoder" role="menuitem">
-                  Word Decoder
+                <Link href="/decoder" role="menuitem" onClick={() => setIsMenuOpen(false)}>
+                  {t('nav.wordDecoder', language)}
                 </Link>
               </li>
               <li role="none">
-                <Link href="/timeline" role="menuitem">
-                  Case Timeline
+                <Link href="/timeline" role="menuitem" onClick={() => setIsMenuOpen(false)}>
+                  {t('nav.caseTimeline', language)}
                 </Link>
               </li>
             </ul>
@@ -54,15 +70,15 @@ export default function LayoutWrapper({ children }) {
             <div className="nav-actions">
               <select 
                 className="language-selector form-input" 
-                aria-label="Select Language"
-                defaultValue="en"
+                aria-label={t('nav.selectLanguage', language)}
+                value={language}
+                onChange={handleLanguageChange}
               >
-                <option value="en">English</option>
-                <option value="hi">हिंदी</option>
-                <option value="ta">தமிழ்</option>
-                <option value="te">తెలుగు</option>
-                <option value="bn">বাংলা</option>
-                <option value="mr">मराठी</option>
+                {supportedLanguages.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.nativeName}
+                  </option>
+                ))}
               </select>
             </div>
           </nav>
@@ -77,30 +93,30 @@ export default function LayoutWrapper({ children }) {
         <div className="container">
           <div className="footer-content">
             <div className="footer-section">
-              <h4>CivisLaw</h4>
-              <p>Bridging the gap between the judicial system and citizens through clear, human-understandable explanations.</p>
+              <h4>{t('common.civisLaw', language)}</h4>
+              <p>{t('footer.tagline', language)}</p>
             </div>
             <div className="footer-section">
-              <h4>Quick Links</h4>
-              <Link href="/document-explainer">Document Explainer</Link>
-              <Link href="/recorder">Statement Recorder</Link>
-              <Link href="/translator">Court Translator</Link>
-              <Link href="/decoder">Word Decoder</Link>
+              <h4>{t('footer.quickLinks', language)}</h4>
+              <Link href="/document-explainer">{t('nav.documentExplainer', language)}</Link>
+              <Link href="/recorder">{t('nav.statementRecorder', language)}</Link>
+              <Link href="/translator">{t('nav.courtTranslator', language)}</Link>
+              <Link href="/decoder">{t('nav.wordDecoder', language)}</Link>
             </div>
             <div className="footer-section">
-              <h4>Resources</h4>
-              <Link href="/timeline">Case Timeline</Link>
-              <a href="#legal-disclaimer">Legal Disclaimer</a>
-              <a href="#privacy-policy">Privacy Policy</a>
+              <h4>{t('footer.resources', language)}</h4>
+              <Link href="/timeline">{t('nav.caseTimeline', language)}</Link>
+              <a href="#legal-disclaimer">{t('home.disclaimerTitle', language)}</a>
+              <a href="#privacy-policy">{t('home.disclaimerTitle', language)}</a>
             </div>
             <div className="footer-section">
-              <h4>Important</h4>
-              <p>This platform provides explanations only and does NOT provide legal advice. Always consult a qualified lawyer for legal matters.</p>
+              <h4>{t('footer.important', language)}</h4>
+              <p>{t('home.disclaimerText', language)}</p>
             </div>
           </div>
           <div className="footer-bottom">
-            <p>© 2024 CivisLaw. Built with dignity and respect for all citizens.</p>
-            <p>Justice does not become fair by being delivered — it becomes fair when it is understood.</p>
+            <p>© 2024 {t('common.civisLaw', language)}. {t('footer.builtWith', language)}</p>
+            <p>{t('footer.footerText', language)}</p>
           </div>
         </div>
       </footer>
@@ -110,9 +126,9 @@ export default function LayoutWrapper({ children }) {
         className="emergency-exit" 
         target="_blank" 
         rel="noopener noreferrer"
-        aria-label="Emergency Exit - Click to leave this site immediately"
+        aria-label={t('common.emergencyExit', language)}
       >
-        🏃 Emergency Exit
+        🏃 {t('common.emergencyExit', language)}
       </a>
 
       <style jsx>{`
@@ -235,5 +251,15 @@ export default function LayoutWrapper({ children }) {
         }
       `}</style>
     </>
+  );
+}
+
+export default function LayoutWrapper({ children }) {
+  return (
+    <LanguageProvider>
+      <LayoutContent>
+        {children}
+      </LayoutContent>
+    </LanguageProvider>
   );
 }
