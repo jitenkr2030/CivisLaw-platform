@@ -1084,35 +1084,58 @@ export const translations = {
 
 // Helper function to get translation
 export function t(keyPath, lang = 'en') {
-  const keys = keyPath.split('.');
-  let result = translations;
+  // Handle common.* keys which have the same translations across all languages
+  if (keyPath.startsWith('common.')) {
+    const key = keyPath.replace('common.', '');
+    const common = translations.common;
+    if (common && common[lang] && common[lang][key]) {
+      return common[lang][key];
+    }
+    if (common && common.en && common.en[key]) {
+      return common.en[key];
+    }
+    return key;
+  }
+
+  // Split the key path
+  const parts = keyPath.split('.');
   
-  for (const key of keys) {
+  if (parts.length < 2) {
+    return keyPath; // Not enough parts
+  }
+
+  const section = parts[0];
+  const remainingKeys = parts.slice(1);
+  
+  // Get the section
+  const sectionObj = translations[section];
+  if (!sectionObj) {
+    return keyPath;
+  }
+
+  // Get the language object (use provided lang or fallback to en)
+  let langObj = sectionObj[lang];
+  if (!langObj || typeof langObj !== 'object') {
+    langObj = sectionObj.en;
+    if (!langObj || typeof langObj !== 'object') {
+      return keyPath;
+    }
+  }
+
+  // Navigate through remaining keys
+  let result = langObj;
+  for (const key of remainingKeys) {
     if (result && typeof result === 'object' && key in result) {
       result = result[key];
     } else {
-      // Fall back to English if translation not found
-      result = translations;
-      for (const k of keys) {
-        if (result && typeof result === 'object' && k in result) {
-          result = result[k];
-        } else {
-          return keyPath; // Return key path if not found
-        }
-      }
-      break;
+      return keyPath;
     }
   }
-  
-  // If result is an object with language codes, try selected language, then English
-  if (result && typeof result === 'object') {
-    if (lang in result) {
-      return result[lang];
-    }
-    if ('en' in result) {
-      return result['en'];
-    }
+
+  // If result is a string, return it
+  if (typeof result === 'string') {
+    return result;
   }
-  
-  return result || keyPath;
+
+  return keyPath;
 }
