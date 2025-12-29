@@ -1,10 +1,11 @@
 // Profile API Route
-// Handles user profile management: GET, PUT (update), and password change
+// Handles user profile management: GET (fetch profile) and PUT (update)
 
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { jwtVerify } from 'jose';
-import { verifyPassword, hashPassword } from '@/lib/auth';
+import { verifyToken } from '@/lib/jwt';
+import { verifyPassword } from '@/lib/auth-server';
+import { isValidPhone } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
@@ -12,21 +13,20 @@ const prisma = new PrismaClient();
 export async function GET(request) {
   try {
     // Get and verify token
-    const token = request.cookies.get('session_token')?.value || 
-                  request.headers.get('authorization')?.replace('Bearer ', '');
+    const token = request.cookies.get('auth_token')?.value ||
+      request.headers.get('authorization')?.replace('Bearer ', '');
 
     if (!token) {
       return NextResponse.json(
-        { error: 'Authentication required', code: 'AUTH_401' },
+        { success: false, error: 'Authentication required', code: 'AUTH_401' },
         { status: 401 }
       );
     }
 
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key');
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await verifyToken(token);
 
     const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
+      where: { id: payload.id },
       select: {
         id: true,
         email: true,
@@ -34,10 +34,10 @@ export async function GET(request) {
         fullName: true,
         avatar: true,
         role: true,
+        status: true,
         language: true,
         timezone: true,
         isVerified: true,
-        mfaEnabled: true,
         preferences: true,
         createdAt: true,
         lastLoginAt: true
@@ -46,7 +46,7 @@ export async function GET(request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'User not found', code: 'AUTH_402' },
+        { success: false, error: 'User not found', code: 'AUTH_402' },
         { status: 404 }
       );
     }
@@ -63,11 +63,13 @@ export async function GET(request) {
 
     return NextResponse.json({
       success: true,
-      user: {
-        ...user,
-        stats: {
-          activeConsents: consentCount,
-          documentsUploaded: documentCount
+      data: {
+        user: {
+          ...user,
+          stats: {
+            activeConsents: consentCount,
+            documentsUploaded: documentCount
+          }
         }
       }
     });
@@ -75,7 +77,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('Get profile error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch profile', code: 'AUTH_500' },
+      { success: false, error: 'Failed to fetch profile', code: 'AUTH_500' },
       { status: 500 }
     );
   }
@@ -85,38 +87,34 @@ export async function GET(request) {
 export async function PUT(request) {
   try {
     // Get and verify token
-    const token = request.cookies.get('session_token')?.value || 
-                  request.headers.get('authorization')?.replace('Bearer ', '');
+    const token = request.cookies.get('auth_token')?.value ||
+      request.headers.get('authorization')?.replace('Bearer ', '');
 
     if (!token) {
       return NextResponse.json(
-        { error: 'Authentication required', code: 'AUTH_401' },
+        { success: false, error: 'Authentication required', code: 'AUTH_401' },
         { status: 401 }
       );
     }
 
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key');
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await verifyToken(token);
 
     const body = await request.json();
     const { fullName, phoneNumber, language, timezone, preferences, avatar } = body;
 
     // Validate phone if provided
-    if (phoneNumber) {
-      const phoneRegex = /^[6-9]\d{9}$/;
-      if (!phoneRegex.test(phoneNumber.replace(/\D/g, ''))) {
-        return NextResponse.json(
-          { error: 'Please enter a valid phone number', code: 'AUTH_403' },
-          { status: 400 }
-        );
-      }
+    if (phoneNumber && !isValidPhone(phoneNumber)) {
+      return NextResponse.json(
+        { success: false, error: 'Please enter a valid phone number', code: 'AUTH_403' },
+        { status: 400 }
+      );
     }
 
     // Validate language if provided
     const validLanguages = ['en', 'hi', 'ta', 'te', 'bn', 'mr'];
     if (language && !validLanguages.includes(language)) {
       return NextResponse.json(
-        { error: 'Invalid language selection', code: 'AUTH_404' },
+        { success: false, error: 'Invalid language selection', code: 'AUTH_404' },
         { status: 400 }
       );
     }
@@ -126,13 +124,13 @@ export async function PUT(request) {
       const existingPhone = await prisma.user.findFirst({
         where: {
           phoneNumber: phoneNumber,
-          NOT: { id: payload.userId }
+          NOT: { id: payload.id }
         }
       });
 
       if (existingPhone) {
         return NextResponse.json(
-          { error: 'This phone number is already in use', code: 'AUTH_405' },
+          { success: false, error: 'This phone number is already in use', code: 'AUTH_405' },
           { status: 409 }
         );
       }
@@ -152,7 +150,7 @@ export async function PUT(request) {
 
     // Update user
     const updatedUser = await prisma.user.update({
-      where: { id: payload.userId },
+      where: { id: payload.id },
       data: updateData,
       select: {
         id: true,
@@ -161,6 +159,7 @@ export async function PUT(request) {
         fullName: true,
         avatar: true,
         role: true,
+        status: true,
         language: true,
         timezone: true,
         preferences: true,
@@ -171,7 +170,7 @@ export async function PUT(request) {
     // Create audit log
     await prisma.auditLog.create({
       data: {
-        userId: payload.userId,
+        userId: payload.id,
         action: 'PROFILE_UPDATE',
         category: 'AUTH',
         metadata: JSON.stringify({
@@ -185,13 +184,13 @@ export async function PUT(request) {
     return NextResponse.json({
       success: true,
       message: 'Profile updated successfully',
-      user: updatedUser
+      data: { user: updatedUser }
     });
 
   } catch (error) {
     console.error('Update profile error:', error);
     return NextResponse.json(
-      { error: 'Failed to update profile', code: 'AUTH_500' },
+      { success: false, error: 'Failed to update profile', code: 'AUTH_500' },
       { status: 500 }
     );
   }

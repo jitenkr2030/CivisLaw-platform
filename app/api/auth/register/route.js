@@ -3,8 +3,8 @@
 
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { hashPassword, validatePasswordStrength, isValidEmail, isValidPhone, generateToken } from '@/lib/auth';
-import { encryptData } from '@/lib/auth';
+import { hashPassword, validatePasswordStrength, isValidEmail, isValidPhone } from '@/lib/auth';
+import { encryptData, generateToken } from '@/lib/auth-server';
 
 const prisma = new PrismaClient();
 
@@ -19,7 +19,7 @@ export async function POST(request) {
     // Validate required fields
     if (!email || !password || !fullName) {
       return NextResponse.json(
-        { error: 'Email, password, and full name are required', code: 'AUTH_001' },
+        { success: false, error: 'Email, password, and full name are required', code: 'AUTH_001' },
         { status: 400 }
       );
     }
@@ -27,7 +27,7 @@ export async function POST(request) {
     // Validate email format
     if (!isValidEmail(email)) {
       return NextResponse.json(
-        { error: 'Please enter a valid email address', code: 'AUTH_002' },
+        { success: false, error: 'Please enter a valid email address', code: 'AUTH_002' },
         { status: 400 }
       );
     }
@@ -36,7 +36,8 @@ export async function POST(request) {
     const passwordValidation = validatePasswordStrength(password);
     if (!passwordValidation.isValid) {
       return NextResponse.json(
-        { 
+        {
+          success: false,
           error: 'Password does not meet security requirements',
           code: 'AUTH_003',
           requirements: passwordValidation.checks
@@ -48,7 +49,7 @@ export async function POST(request) {
     // Confirm passwords match
     if (password !== confirmPassword) {
       return NextResponse.json(
-        { error: 'Passwords do not match', code: 'AUTH_004' },
+        { success: false, error: 'Passwords do not match', code: 'AUTH_004' },
         { status: 400 }
       );
     }
@@ -56,7 +57,7 @@ export async function POST(request) {
     // Validate phone if provided
     if (phoneNumber && !isValidPhone(phoneNumber)) {
       return NextResponse.json(
-        { error: 'Please enter a valid phone number', code: 'AUTH_005' },
+        { success: false, error: 'Please enter a valid phone number', code: 'AUTH_005' },
         { status: 400 }
       );
     }
@@ -74,13 +75,13 @@ export async function POST(request) {
     if (existingUser) {
       if (existingUser.email === email.toLowerCase()) {
         return NextResponse.json(
-          { error: 'An account with this email already exists', code: 'AUTH_006' },
+          { success: false, error: 'An account with this email already exists', code: 'AUTH_006' },
           { status: 409 }
         );
       }
       if (phoneNumber && existingUser.phoneNumber === phoneNumber) {
         return NextResponse.json(
-          { error: 'An account with this phone number already exists', code: 'AUTH_007' },
+          { success: false, error: 'An account with this phone number already exists', code: 'AUTH_007' },
           { status: 409 }
         );
       }
@@ -102,7 +103,7 @@ export async function POST(request) {
         fullName,
         language: language || 'en',
         role: 'CITIZEN',
-        isActive: true,
+        status: 'ACTIVE',
         isVerified: false,
         preferences: {
           notifications: true,
@@ -137,14 +138,13 @@ export async function POST(request) {
     await prisma.auditLog.create({
       data: {
         userId: user.id,
-        action: 'LOGIN',
+        action: 'REGISTRATION_SUCCESS',
         category: 'AUTH',
-        metadata: encryptData({
+        metadata: JSON.stringify({
           action: 'registration',
           method: 'email',
           timestamp: new Date().toISOString()
-        }, process.env.AUDIT_KEY || 'audit-secret-key'),
-        metadataIv: 'initialized',
+        }),
         severity: 'INFO'
       }
     });
@@ -152,28 +152,30 @@ export async function POST(request) {
     return NextResponse.json({
       success: true,
       message: 'Account created successfully',
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.fullName,
-        role: user.role,
-        language: user.language
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          fullName: user.fullName,
+          role: user.role,
+          language: user.language
+        }
       }
     }, { status: 201 });
 
   } catch (error) {
     console.error('Registration error:', error);
-    
+
     // Handle Prisma unique constraint violations
     if (error.code === 'P2002') {
       return NextResponse.json(
-        { error: 'An account with this email or phone already exists', code: 'AUTH_008' },
+        { success: false, error: 'An account with this email or phone already exists', code: 'AUTH_008' },
         { status: 409 }
       );
     }
 
     return NextResponse.json(
-      { error: 'An error occurred during registration. Please try again.', code: 'AUTH_500' },
+      { success: false, error: 'An error occurred during registration. Please try again.', code: 'AUTH_500' },
       { status: 500 }
     );
   }

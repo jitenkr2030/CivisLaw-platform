@@ -3,8 +3,9 @@
 
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { verifyPassword, generateToken, checkRateLimit, generateSecurePassword } from '@/lib/auth';
-import { jwt } from '@tsndr/cloudflare-worker-jwt';
+import { verifyPassword } from '@/lib/auth-server';
+import { createToken } from '@/lib/jwt';
+import { checkRateLimit } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
@@ -16,7 +17,7 @@ export async function POST(request) {
     // Validate required fields
     if (!emailOrPhone || !password) {
       return NextResponse.json(
-        { error: 'Email/phone and password are required', code: 'AUTH_101' },
+        { success: false, error: 'Email/phone and password are required', code: 'AUTH_101' },
         { status: 400 }
       );
     }
@@ -24,10 +25,11 @@ export async function POST(request) {
     // Rate limiting - 5 attempts per minute
     const rateLimitKey = `login:${emailOrPhone.includes('@') ? emailOrPhone.toLowerCase() : emailOrPhone}`;
     const rateLimit = checkRateLimit(rateLimitKey, 5, 60000);
-    
+
     if (!rateLimit.allowed) {
       return NextResponse.json(
-        { 
+        {
+          success: false,
           error: 'Too many login attempts. Please try again in a moment.',
           code: 'AUTH_102',
           retryAfter: Math.ceil(rateLimit.resetIn / 1000)
@@ -38,7 +40,7 @@ export async function POST(request) {
 
     // Find user by email or phone
     const isEmail = emailOrPhone.includes('@');
-    const whereClause = isEmail 
+    const whereClause = isEmail
       ? { email: emailOrPhone.toLowerCase() }
       : { phoneNumber: emailOrPhone };
 
@@ -51,9 +53,7 @@ export async function POST(request) {
         fullName: true,
         passwordHash: true,
         role: true,
-        isActive: true,
-        isVerified: true,
-        mfaEnabled: true,
+        status: true,
         language: true,
         createdAt: true,
         lastLoginAt: true
@@ -78,22 +78,22 @@ export async function POST(request) {
       });
 
       return NextResponse.json(
-        { error: 'Invalid email/phone or password', code: 'AUTH_103' },
+        { success: false, error: 'Invalid email/phone or password', code: 'AUTH_103' },
         { status: 401 }
       );
     }
 
     // Check if account is active
-    if (!user.isActive) {
+    if (user.status !== 'ACTIVE') {
       return NextResponse.json(
-        { error: 'This account has been deactivated. Please contact support.', code: 'AUTH_104' },
+        { success: false, error: 'This account has been deactivated. Please contact support.', code: 'AUTH_104' },
         { status: 403 }
       );
     }
 
     // Verify password
     const isValid = await verifyPassword(password, user.passwordHash);
-    
+
     if (!isValid) {
       // Create failed login audit log
       await prisma.auditLog.create({
@@ -111,23 +111,19 @@ export async function POST(request) {
       });
 
       return NextResponse.json(
-        { error: 'Invalid email/phone or password', code: 'AUTH_105' },
+        { success: false, error: 'Invalid email/phone or password', code: 'AUTH_105' },
         { status: 401 }
       );
     }
 
-    // Generate JWT token
-    const tokenPayload = {
-      userId: user.id,
+    // Generate JWT token using jose
+    const token = await createToken({
+      id: user.id,
       email: user.email,
       role: user.role,
       name: user.fullName,
       language: user.language,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (rememberMe ? 7 * 24 * 60 * 60 : 24 * 60 * 60) // 7 days or 1 day
-    };
-
-    const token = await jwt.sign(tokenPayload, process.env.JWT_SECRET || 'your-secret-key');
+    });
 
     // Update last login
     await prisma.user.update({
@@ -141,7 +137,7 @@ export async function POST(request) {
     await prisma.auditLog.create({
       data: {
         userId: user.id,
-        action: 'LOGIN',
+        action: 'LOGIN_SUCCESS',
         category: 'AUTH',
         metadata: JSON.stringify({
           method: isEmail ? 'email' : 'phone',
@@ -152,17 +148,24 @@ export async function POST(request) {
       }
     });
 
+    // Prepare user response (exclude sensitive data)
+    const userResponse = {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+      status: user.status,
+      language: user.language,
+    };
+
     // Create response with HTTP-only cookie
     const response = NextResponse.json({
       success: true,
       message: 'Login successful',
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.fullName,
-        role: user.role,
-        language: user.language,
-        isVerified: user.isVerified
+      data: {
+        user: userResponse,
+        token,
       }
     }, { status: 200 });
 
@@ -175,14 +178,14 @@ export async function POST(request) {
       path: '/'
     };
 
-    response.cookies.set('session_token', token, cookieOptions);
+    response.cookies.set('auth_token', token, cookieOptions);
 
     return response;
 
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { error: 'An error occurred during login. Please try again.', code: 'AUTH_500' },
+      { success: false, error: 'An error occurred during login. Please try again.', code: 'AUTH_500' },
       { status: 500 }
     );
   }

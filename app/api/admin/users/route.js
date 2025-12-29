@@ -1,79 +1,89 @@
-// Admin User Management API - Manage user accounts
-// Meta-data only, no access to sensitive content
+// Admin Users API Route
+// Handles user management: GET list, PUT update, DELETE (admin only)
 
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { checkRateLimit, hashIp, maskEmail } from '../../../lib/auth.js';
+import { verifyToken } from '@/lib/jwt';
+import { checkRateLimit, maskEmail } from '@/lib/auth';
+import { hashIp } from '@/lib/auth-server';
 
 const prisma = new PrismaClient();
 
-// ============================================
-// GET /api/admin/users - List users with pagination and filtering
-// ============================================
+// GET - List all users (admin only)
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url);
-    
-    // Pagination
-    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
-    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '20'), 1), 100);
-    const skip = (page - 1) * limit;
+    // Authenticate
+    const token = request.cookies.get('auth_token')?.value ||
+      request.headers.get('authorization')?.replace('Bearer ', '');
 
-    // Filters
-    const role = searchParams.get('role');
-    const status = searchParams.get('status'); // active, inactive
-    const search = searchParams.get('search');
-    const sortBy = searchParams.get('sortBy') || 'createdAt';
-    const sortOrder = searchParams.get('sortOrder') || 'desc';
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required', code: 'ADMIN_401' },
+        { status: 401 }
+      );
+    }
 
-    // Build where clause (meta-data only)
-    const where = {
-      ...(role && { role: role.toUpperCase() }),
-      ...(status === 'active' && { isActive: true }),
-      ...(status === 'inactive' && { isActive: false }),
-      ...(search && {
-        OR: [
-          { email: { contains: search, mode: 'insensitive' } },
-          { fullName: { contains: search, mode: 'insensitive' } },
-          { phoneNumber: { contains: search, mode: 'insensitive' } },
-        ],
-      }),
-    };
+    const { payload } = await verifyToken(token);
+
+    // Check admin role
+    if (payload.role !== 'ADMIN') {
+      return NextResponse.json(
+        { success: false, error: 'Access denied. Admin only.', code: 'ADMIN_403' },
+        { status: 403 }
+      );
+    }
 
     // Rate limiting
     const rateLimit = checkRateLimit('admin_users_list', 60, 60000);
     if (!rateLimit.allowed) {
       return NextResponse.json(
-        { error: 'Too many requests' },
+        { success: false, error: 'Too many requests', code: 'ADMIN_429' },
         { status: 429 }
       );
     }
 
-    // Fetch users (meta-data only, no sensitive content)
+    // Parse query parameters
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '20'), 1), 100);
+    const role = searchParams.get('role');
+    const status = searchParams.get('status');
+    const search = searchParams.get('search');
+    const sortBy = searchParams.get('sortBy') || 'createdAt';
+    const sortOrder = searchParams.get('sortOrder') || 'desc';
+
+    // Build where clause
+    const where = {
+      ...(role && { role: role.toUpperCase() }),
+      ...(status === 'active' && { status: 'ACTIVE' }),
+      ...(status === 'inactive' && { status: { not: 'ACTIVE' } }),
+      ...(search && {
+        OR: [
+          { email: { contains: search, mode: 'insensitive' } },
+          { fullName: { contains: search, mode: 'insensitive' } },
+          { phoneNumber: { contains: search } },
+        ],
+      }),
+    };
+
+    // Fetch users
     const [users, total] = await Promise.all([
       prisma.user.findMany({
         where,
-        skip,
+        skip: (page - 1) * limit,
         take: limit,
         orderBy: { [sortBy]: sortOrder },
         select: {
           id: true,
-          email: true, // Will be masked in response
+          email: true,
           fullName: true,
-          phoneNumber: true, // Will be masked
+          phoneNumber: true,
           role: true,
-          isActive: true,
+          status: true,
           isVerified: true,
           language: true,
           lastLoginAt: true,
           createdAt: true,
-          ngoProfile: {
-            select: {
-              organizationName: true,
-              region: true,
-              isVerified: true,
-            },
-          },
           _count: {
             select: {
               documents: true,
@@ -90,35 +100,57 @@ export async function GET(request) {
     const maskedUsers = users.map(user => ({
       ...user,
       email: maskEmail(user.email),
-      phoneNumber: user.phoneNumber 
-        ? `***${user.phoneNumber.slice(-4)}` 
+      phoneNumber: user.phoneNumber
+        ? `***${user.phoneNumber.slice(-4)}`
         : null,
-      // No access to documents, statements, or their content
     }));
 
     return NextResponse.json({
-      users: maskedUsers,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      success: true,
+      data: {
+        users: maskedUsers,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        }
+      }
     });
+
   } catch (error) {
     console.error('Admin users list error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch users' },
+      { success: false, error: 'Failed to fetch users', code: 'ADMIN_500' },
       { status: 500 }
     );
   }
 }
 
-// ============================================
-// PATCH /api/admin/users - Bulk user operations
-// ============================================
+// PATCH - Bulk user operations (admin only)
 export async function PATCH(request) {
   try {
+    // Authenticate
+    const token = request.cookies.get('auth_token')?.value ||
+      request.headers.get('authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required', code: 'ADMIN_401' },
+        { status: 401 }
+      );
+    }
+
+    const { payload } = await verifyToken(token);
+
+    // Check admin role
+    if (payload.role !== 'ADMIN') {
+      return NextResponse.json(
+        { success: false, error: 'Access denied. Admin only.', code: 'ADMIN_403' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const { userIds, action, role, reason } = body;
 
@@ -126,7 +158,7 @@ export async function PATCH(request) {
     const validActions = ['activate', 'deactivate', 'change_role', 'verify'];
     if (!action || !validActions.includes(action)) {
       return NextResponse.json(
-        { error: 'Invalid action' },
+        { success: false, error: 'Invalid action', code: 'ADMIN_400' },
         { status: 400 }
       );
     }
@@ -134,27 +166,16 @@ export async function PATCH(request) {
     // Validate user IDs
     if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
       return NextResponse.json(
-        { error: 'User IDs are required' },
+        { success: false, error: 'User IDs are required', code: 'ADMIN_400' },
         { status: 400 }
       );
-    }
-
-    // Validate role if changing
-    if (action === 'change_role') {
-      const validRoles = ['CITIZEN', 'VICTIM', 'NGO', 'LEGAL_AID', 'ADMIN'];
-      if (!role || !validRoles.includes(role)) {
-        return NextResponse.json(
-          { error: 'Invalid role' },
-          { status: 400 }
-        );
-      }
     }
 
     // Rate limiting
     const rateLimit = checkRateLimit('admin_users_bulk', 10, 60000);
     if (!rateLimit.allowed) {
       return NextResponse.json(
-        { error: 'Too many bulk operations' },
+        { success: false, error: 'Too many bulk operations', code: 'ADMIN_429' },
         { status: 429 }
       );
     }
@@ -165,20 +186,27 @@ export async function PATCH(request) {
 
     switch (action) {
       case 'activate':
-        updateData = { isActive: true };
-        logAction = 'ADMIN_USER_UPDATE';
+        updateData = { status: 'ACTIVE' };
+        logAction = 'ADMIN_USER_ACTIVATE';
         break;
       case 'deactivate':
-        updateData = { isActive: false };
-        logAction = 'ADMIN_USER_UPDATE';
+        updateData = { status: 'INACTIVE' };
+        logAction = 'ADMIN_USER_DEACTIVATE';
         break;
       case 'change_role':
+        const validRoles = ['CITIZEN', 'VICTIM', 'NGO', 'LEGAL_AID', 'ADMIN'];
+        if (!role || !validRoles.includes(role)) {
+          return NextResponse.json(
+            { success: false, error: 'Invalid role', code: 'ADMIN_400' },
+            { status: 400 }
+          );
+        }
         updateData = { role };
         logAction = 'ADMIN_ROLE_CHANGE';
         break;
       case 'verify':
         updateData = { isVerified: true };
-        logAction = 'ADMIN_USER_UPDATE';
+        logAction = 'ADMIN_USER_VERIFY';
         break;
     }
 
@@ -188,9 +216,10 @@ export async function PATCH(request) {
       data: updateData,
     });
 
-    // Create audit log (anonymized)
+    // Create audit log
     await prisma.auditLog.create({
       data: {
+        userId: payload.id,
         action: logAction,
         category: 'ADMIN',
         severity: 'INFO',
@@ -206,106 +235,106 @@ export async function PATCH(request) {
     });
 
     return NextResponse.json({
+      success: true,
       message: `Successfully ${action === 'change_role' ? `changed role to ${role}` : action}ed ${updated.count} user(s)`,
-      updatedCount: updated.count,
+      data: { updatedCount: updated.count }
     });
+
   } catch (error) {
     console.error('Admin users update error:', error);
     return NextResponse.json(
-      { error: 'Failed to update users' },
+      { success: false, error: 'Failed to update users', code: 'ADMIN_500' },
       { status: 500 }
     );
   }
 }
 
-// ============================================
-// GET /api/admin/users/[userId] - Get user details (meta-data only)
-// ============================================
-export async function GET_USER(request, { params }) {
+// DELETE - Delete user (admin only)
+export async function DELETE(request) {
   try {
-    const { userId } = params;
+    // Authenticate
+    const token = request.cookies.get('auth_token')?.value ||
+      request.headers.get('authorization')?.replace('Bearer ', '');
 
-    // Rate limiting
-    const rateLimit = checkRateLimit(`admin_user_${userId}`, 30, 60000);
-    if (!rateLimit.allowed) {
+    if (!token) {
       return NextResponse.json(
-        { error: 'Too many requests' },
-        { status: 429 }
+        { success: false, error: 'Authentication required', code: 'ADMIN_401' },
+        { status: 401 }
       );
     }
 
-    // Fetch user meta-data only
+    const { payload } = await verifyToken(token);
+
+    // Check admin role
+    if (payload.role !== 'ADMIN') {
+      return NextResponse.json(
+        { success: false, error: 'Access denied. Admin only.', code: 'ADMIN_403' },
+        { status: 403 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('id');
+
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: 'User ID is required', code: 'ADMIN_400' },
+        { status: 400 }
+      );
+    }
+
+    // Prevent admin from deleting themselves
+    if (userId === payload.id) {
+      return NextResponse.json(
+        { success: false, error: 'Cannot delete your own account', code: 'ADMIN_400' },
+        { status: 400 }
+      );
+    }
+
+    // Check user exists
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        email: true, // Will be masked
-        phoneNumber: true, // Will be masked
-        fullName: true,
-        role: true,
-        isActive: true,
-        isVerified: true,
-        language: true,
-        timezone: true,
-        mfaEnabled: true,
-        lastLoginAt: true,
-        createdAt: true,
-        updatedAt: true,
-        ngoProfile: {
-          select: {
-            organizationName: true,
-            region: true,
-            isVerified: true,
-            createdAt: true,
-          },
-        },
-        // Statistics only - no actual content
-        _count: {
-          select: {
-            documents: true,
-            statements: true,
-            consents: true,
-            sessions: true,
-            auditLogs: true,
-          },
-        },
-      },
+      select: { id: true, email: true, fullName: true }
     });
 
     if (!user) {
       return NextResponse.json(
-        { error: 'User not found' },
+        { success: false, error: 'User not found', code: 'ADMIN_404' },
         { status: 404 }
       );
     }
 
-    // Mask sensitive data
-    const maskedUser = {
-      ...user,
-      email: maskEmail(user.email),
-      phoneNumber: user.phoneNumber 
-        ? `***${user.phoneNumber.slice(-4)}` 
-        : null,
-    };
-
-    // Log admin view (anonymized)
-    await prisma.auditLog.create({
-      data: {
-        action: 'ADMIN_USER_VIEW',
-        category: 'ADMIN',
-        metadata: JSON.stringify({
-          viewedUserId: userId,
-          viewedAt: new Date().toISOString(),
-        }),
-        ipHash: hashIp(request.headers.get('x-forwarded-for') || 'unknown'),
-      },
+    // Delete user and related records (cascade)
+    await prisma.user.delete({
+      where: { id: userId },
     });
 
-    return NextResponse.json({ user: maskedUser });
+    // Create audit log
+    await prisma.auditLog.create({
+      data: {
+        userId: payload.id,
+        action: 'ADMIN_USER_DELETE',
+        category: 'ADMIN',
+        resource: 'user',
+        resourceId: userId,
+        metadata: JSON.stringify({
+          deletedUserEmail: maskEmail(user.email),
+          deletedUserName: user.fullName,
+          timestamp: new Date().toISOString()
+        }),
+        severity: 'WARN'
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+
   } catch (error) {
-    console.error('Admin user detail error:', error);
+    console.error('Admin delete user error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch user details' },
+      { success: false, error: 'Failed to delete user', code: 'ADMIN_500' },
       { status: 500 }
     );
   }
