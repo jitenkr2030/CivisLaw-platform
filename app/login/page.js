@@ -83,7 +83,7 @@ export default function LoginPage() {
       }
 
       // Login successful, redirect to dashboard
-      router.push('/');
+      router.push('/dashboard');
       router.refresh();
 
     } catch (error) {
