@@ -9,10 +9,13 @@ const publicRoutes = [
   '/',
   '/login',
   '/register',
-  '/recover',
+  '/forgot-password',
+  '/reset-password',
   '/api/auth/login',
   '/api/auth/register',
-  '/api/auth/recover',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
+  '/api/health',
 ];
 
 // Routes that require admin role
