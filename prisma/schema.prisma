@@ -1,13 +1,14 @@
 // CivisLaw Database Schema
-// Privacy-first judicial understanding platform
+// SQLite-compatible version for development
+// Note: For production, use PostgreSQL which has better support for enums and JSON
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 // ============================================
@@ -22,7 +23,7 @@ model User {
   passwordHash    String    // Argon2id hash
   encryptedMasterKey String? // Key to decrypt local data, encrypted by password
   
-  role            UserRole  @default(CITIZEN)
+  role            String    @default("CITIZEN") // CITIZEN, VICTIM, NGO, LEGAL_AID, ADMIN
   isActive        Boolean   @default(true)
   isVerified      Boolean   @default(false)
   
@@ -31,7 +32,7 @@ model User {
   avatar          String?
   language        String    @default("en")
   timezone        String    @default("UTC")
-  preferences     Json?     // { notifications: true, theme: "light", etc }
+  preferences     String?   // JSON string: { notifications: true, theme: "light", etc }
   
   // Security
   mfaEnabled      Boolean   @default(false)
@@ -59,14 +60,6 @@ model User {
   @@index([email])
   @@index([role])
   @@index([isActive])
-}
-
-enum UserRole {
-  CITIZEN
-  VICTIM
-  NGO
-  LEGAL_AID
-  ADMIN
 }
 
 // Session Management (Supports multi-device, auto-timeout)
@@ -103,12 +96,12 @@ model ConsentRecord {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   resourceId  String   // ID of the document/statement
-  resourceType ConsentResourceType
+  resourceType String  // DOCUMENT, STATEMENT, AUDIO_RECORDING, TRANSLATION, CASE_FILE
   
   grantedTo   String   // NGO ID, "SYSTEM_AI", or partner code
   grantedToName String? // Human-readable name for display
   
-  status      ConsentStatus @default(GRANTED)
+  status      String   @default("GRANTED") // GRANTED, REVOKED, EXPIRED, PENDING
   grantedAt   DateTime  @default(now())
   expiresAt   DateTime?
   revokedAt   DateTime?
@@ -124,35 +117,20 @@ model ConsentRecord {
   @@index([grantedTo])
 }
 
-enum ConsentResourceType {
-  DOCUMENT
-  STATEMENT
-  AUDIO_RECORDING
-  TRANSLATION
-  CASE_FILE
-}
-
-enum ConsentStatus {
-  GRANTED
-  REVOKED
-  EXPIRED
-  PENDING
-}
-
 // Audit Logging (Encrypted, privacy-preserving)
 model AuditLog {
   id          String   @id @default(cuid())
   userId      String?
   user        User?    @relation(fields: [userId], references: [id])
   
-  action      AuditAction
+  action      String   // LOGIN, LOGOUT, LOGIN_FAILED, PASSWORD_CHANGE, etc.
   category    String   // "AUTH", "DOCUMENT", "CONSENT", "ADMIN"
   
   // Encrypted metadata (never contains PII or sensitive content)
   metadata    String   // AES-256 encrypted JSON
   metadataIv  String   // Initialization vector for decryption
   
-  severity    LogSeverity @default(INFO)
+  severity    String   @default("INFO") // DEBUG, INFO, WARN, CRITICAL
   
   // Privacy-preserving identifiers
   ipHash      String?  // Hashed IP (sha256 truncated)
@@ -165,57 +143,6 @@ model AuditLog {
   @@index([category])
   @@index([timestamp])
   @@index([severity])
-}
-
-enum AuditAction {
-  // Authentication
-  LOGIN
-  LOGOUT
-  LOGIN_FAILED
-  PASSWORD_CHANGE
-  MFA_ENABLE
-  MFA_DISABLE
-  ACCOUNT_RECOVERY
-  SESSION_REVOKED
-  
-  // Document Operations
-  DOCUMENT_UPLOAD
-  DOCUMENT_VIEW
-  DOCUMENT_DOWNLOAD
-  DOCUMENT_DELETE
-  
-  // Statement Operations
-  STATEMENT_RECORD
-  STATEMENT_VIEW
-  STATEMENT_TRANSCRIBE
-  
-  // Consent Operations
-  CONSENT_GRANTED
-  CONSENT_REVOKED
-  CONSENT_REQUESTED
-  
-  // User Management
-  PROFILE_UPDATE
-  PREFERENCES_UPDATE
-  
-  // Admin Actions
-  ADMIN_USER_VIEW
-  ADMIN_USER_UPDATE
-  ADMIN_ROLE_CHANGE
-  ADMIN_ACCESS_GRANT
-  ADMIN_ACCESS_DENY
-  ADMIN_SYSTEM_CONFIG
-  
-  // System
-  DATA_EXPORT
-  DATA_DELETE_REQUEST
-}
-
-enum LogSeverity {
-  DEBUG
-  INFO
-  WARN
-  CRITICAL
 }
 
 // ============================================
@@ -235,11 +162,11 @@ model Document {
   encryptionKey   String?  // Encrypted per-document key
   isEncrypted     Boolean  @default(true)
   
-  status          DocumentStatus @default(PENDING)
+  status          String   @default("PENDING") // PENDING, PROCESSING, READY, ERROR, DELETED
   
   // Metadata (not content)
   description     String?
-  tags            String[]
+  tags            String   // Comma-separated tags
   
   // AI Processing
   aiProcessed     Boolean  @default(false)
@@ -253,14 +180,6 @@ model Document {
   @@index([userId])
   @@index([status])
   @@index([createdAt])
-}
-
-enum DocumentStatus {
-  PENDING
-  PROCESSING
-  READY
-  ERROR
-  DELETED
 }
 
 model VictimStatement {
@@ -282,25 +201,17 @@ model VictimStatement {
   isTranscribed   Boolean  @default(false)
   
   // Status
-  status          StatementStatus @default(DRAFT)
+  status          String   @default("DRAFT") // DRAFT, REVIEW, FINAL, SHARED, ARCHIVED
   
   // Consent tracking
   consentRequired Boolean  @default(true)
-  sharedWith      String[] // List of NGO IDs
+  sharedWith      String   // Comma-separated list of NGO IDs
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
   @@index([userId])
   @@index([status])
-}
-
-enum StatementStatus {
-  DRAFT
-  REVIEW
-  FINAL
-  SHARED
-  ARCHIVED
 }
 
 // ============================================
@@ -323,7 +234,7 @@ model NGOProfile {
   
   // Region/Jurisdiction
   region        String   // State/Region served
-  districts     String[] // Districts covered
+  districts     String   // Comma-separated districts covered
   
   // Verification
   isVerified    Boolean  @default(false)
@@ -336,7 +247,7 @@ model NGOProfile {
   
   // Settings
   autoApprove   Boolean  @default(false)
-  notificationPreferences Json?
+  notificationPreferences String? // JSON string
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -358,12 +269,12 @@ model AccessRequest {
   targetUser    User     @relation("AccessReviewer", fields: [targetUserId], references: [id])
   
   // Request Details
-  resourceType  ConsentResourceType
+  resourceType  String   // DOCUMENT, STATEMENT, AUDIO_RECORDING, TRANSLATION, CASE_FILE
   resourceId    String?  // Optional specific document/statement
   purpose       String   // Reason for access
   duration      Int?     // Days requested
   
-  status        AccessRequestStatus @default(PENDING)
+  status        String   @default("PENDING") // PENDING, APPROVED, DENIED, CANCELLED, EXPIRED
   
   // Review
   reviewedBy    String?
@@ -379,14 +290,6 @@ model AccessRequest {
   @@index([status])
 }
 
-enum AccessRequestStatus {
-  PENDING
-  APPROVED
-  DENIED
-  CANCELLED
-  EXPIRED
-}
-
 // ============================================
 // ADMIN & SYSTEM MODELS
 // ============================================
@@ -394,7 +297,7 @@ enum AccessRequestStatus {
 model SystemConfig {
   id            String   @id @default(cuid())
   key           String   @unique
-  value         Json
+  value         String   // JSON string
   description   String?
   
   updatedAt     DateTime @updatedAt
@@ -409,7 +312,7 @@ model MaintenanceWindow {
   actualEnd      DateTime?
   
   reason        String
-  affectedModules String[]
+  affectedModules String   // Comma-separated list of affected modules
   
   isActive      Boolean  @default(false)
   
@@ -422,10 +325,10 @@ model Announcement {
   title         String
   message       String
   
-  type          AnnouncementType
+  type          String   @default("GENERAL") // FEATURE, MAINTENANCE, SECURITY, GENERAL
   priority      Int      @default(0) // Higher = more important
   
-  targetRoles   UserRole[] // Who sees this
+  targetRoles   String   // Comma-separated roles that see this
   
   startsAt      DateTime
   expiresAt     DateTime?
@@ -438,13 +341,6 @@ model Announcement {
   @@index([expiresAt])
 }
 
-enum AnnouncementType {
-  FEATURE
-  MAINTENANCE
-  SECURITY
-  GENERAL
-}
-
 // ============================================
 // ANALYTICS & METRICS (Aggregated, Anonymized)
 // ============================================
@@ -452,12 +348,12 @@ enum AnnouncementType {
 model DailyMetrics {
   id            String   @id @default(cuid())
   
-  date          DateTime @db.Date
+  date          DateTime
   
   // User Metrics
   newUsers      Int      @default(0)
   activeUsers   Int      @default(0)
-  usersByRole   Json?    // { citizen: 10, ngo: 2, admin: 1 }
+  usersByRole   String?  // JSON string: { citizen: 10, ngo: 2, admin: 1 }
   
   // Content Metrics
   documentsUploaded Int @default(0)
@@ -470,7 +366,7 @@ model DailyMetrics {
   errors        Int      @default(0)
   
   // Language Distribution
-  languageUsage Json?    // { en: 100, hi: 50, ta: 30 }
+  languageUsage String?  // JSON string: { en: 100, hi: 50, ta: 30 }
   
   @@unique([date])
   @@index([date])
