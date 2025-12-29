@@ -1,8 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useLanguage } from '../../utils/LanguageContext';
+import { t as getTranslation } from '../../utils/i18n';
 
 export default function DecoderPage() {
+  const { language } = useLanguage();
+  const t = (key) => getTranslation(key, language);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [searchedTerm, setSearchedTerm] = useState(null);
   const [recentSearches, setRecentSearches] = useState(['Bailable', 'Adjournment', 'Cognizable']);
@@ -49,7 +54,7 @@ export default function DecoderPage() {
       meaning: 'A court order that temporarily stops or pauses an action or decision',
       example: 'The court issued a stay order on the demolition.',
       category: 'order',
-      related: [' injunction', 'Restraining Order', 'Interim Relief']
+      related: ['injunction', 'Restraining Order', 'Interim Relief']
     },
     {
       term: 'Plaintiff',
@@ -222,15 +227,15 @@ export default function DecoderPage() {
   ];
 
   const categories = [
-    { id: 'all', name: 'All Terms' },
-    { id: 'procedure', name: 'Court Procedures' },
-    { id: 'bail', name: 'Bail & Custody' },
-    { id: 'crime', name: 'Types of Crimes' },
-    { id: 'order', name: 'Court Orders' },
-    { id: 'parties', name: 'People Involved' },
-    { id: 'documents', name: 'Legal Documents' },
-    { id: 'verdict', name: 'Verdicts & Outcomes' },
-    { id: 'court', name: 'Court Structure' }
+    { id: 'all', name: t('decoder.allTerms') },
+    { id: 'procedure', name: t('decoder.courtProcedures') },
+    { id: 'bail', name: t('decoder.bailCustody') },
+    { id: 'crime', name: t('decoder.typesCrimes') },
+    { id: 'order', name: t('decoder.courtOrders') },
+    { id: 'parties', name: t('decoder.peopleInvolved') },
+    { id: 'documents', name: t('decoder.legalDocuments') },
+    { id: 'verdict', name: t('decoder.verdictsOutcomes') },
+    { id: 'court', name: t('decoder.courtStructure') }
   ];
 
   const handleSearch = (term) => {
@@ -263,21 +268,20 @@ export default function DecoderPage() {
       <div className="container">
         {/* Page Header */}
         <header className="page-header">
-          <h1>Legal Word Decoder</h1>
+          <h1>{t('decoder.title')}</h1>
           <p className="page-description">
-            Confused by legal terms? Get simple, plain-language explanations of common 
-            legal words and phrases used in court.
+            {t('decoder.description')}
           </p>
         </header>
 
         {/* Search Section */}
         <div className="card search-card">
-          <h2 className="search-title">🔍 Search for a Legal Term</h2>
+          <h2 className="search-title">{t('decoder.searchTitle')}</h2>
           <div className="search-input-group">
             <input
               type="text"
               className="form-input search-input"
-              placeholder="Type a legal term (e.g., 'Bailable', 'Adjournment', 'FIR')"
+              placeholder={t('decoder.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
               aria-label="Search legal terms"
@@ -286,14 +290,14 @@ export default function DecoderPage() {
               className="btn btn-primary"
               onClick={() => getRandomTerm()}
             >
-              🎲 Random
+              🎲 {t('decoder.randomButton')}
             </button>
           </div>
 
           {/* Recent Searches */}
           {recentSearches.length > 0 && (
             <div className="recent-searches">
-              <span className="recent-label">Recent:</span>
+              <span className="recent-label">{t('decoder.recentLabel')}</span>
               {recentSearches.map((term, index) => (
                 <button
                   key={index}
@@ -318,18 +322,18 @@ export default function DecoderPage() {
             </div>
             
             <div className="result-section">
-              <h3>📝 Plain Language Explanation</h3>
+              <h3>📝 {t('decoder.explanationLabel')}</h3>
               <p className="result-meaning">{searchedTerm.meaning}</p>
             </div>
             
             <div className="result-section">
-              <h3>💡 Real-Life Example</h3>
+              <h3>💡 {t('decoder.exampleLabel')}</h3>
               <p className="result-example">{searchedTerm.example}</p>
             </div>
             
             {searchedTerm.related && (
               <div className="result-section">
-                <h3>🔗 Related Terms</h3>
+                <h3>🔗 {t('decoder.relatedLabel')}</h3>
                 <div className="related-tags">
                   {searchedTerm.related.map((related, index) => (
                     <button
@@ -348,7 +352,7 @@ export default function DecoderPage() {
 
         {/* Category Filter */}
         <div className="category-filter">
-          <h3>Browse by Category</h3>
+          <h3>{t('decoder.browseCategory')}</h3>
           <div className="category-buttons">
             {categories.map(category => (
               <button
@@ -379,10 +383,10 @@ export default function DecoderPage() {
 
         {/* Quick Reference */}
         <section className="quick-reference">
-          <h2 className="section-title">📚 Quick Reference: Most Common Terms</h2>
+          <h2 className="section-title">📚 {t('decoder.quickReferenceTitle')}</h2>
           <div className="quick-grid">
             <div className="quick-card">
-              <h3>Bail-Related</h3>
+              <h3>{t('decoder.bailRelated')}</h3>
               <ul>
                 <li><strong>Bail:</strong> Temporary release from jail with conditions</li>
                 <li><strong>Bailable:</strong> Easy to get bail</li>
@@ -391,7 +395,7 @@ export default function DecoderPage() {
               </ul>
             </div>
             <div className="quick-card">
-              <h3>Crime-Related</h3>
+              <h3>{t('decoder.crimeRelated')}</h3>
               <ul>
                 <li><strong>Cognizable:</strong> Police can arrest without warrant</li>
                 <li><strong>Non-Cognizable:</strong> Police need warrant to arrest</li>
@@ -400,7 +404,7 @@ export default function DecoderPage() {
               </ul>
             </div>
             <div className="quick-card">
-              <h3>Court Process</h3>
+              <h3>{t('decoder.courtProcess')}</h3>
               <ul>
                 <li><strong>Adjournment:</strong> Postponement to another date</li>
                 <li><strong>Summons:</strong> Order to appear in court</li>
@@ -409,7 +413,7 @@ export default function DecoderPage() {
               </ul>
             </div>
             <div className="quick-card">
-              <h3>People in Court</h3>
+              <h3>{t('decoder.peopleInCourt')}</h3>
               <ul>
                 <li><strong>Plaintiff:</strong> Person who starts the case</li>
                 <li><strong>Defendant:</strong> Person case is against</li>
@@ -425,11 +429,11 @@ export default function DecoderPage() {
           <div className="download-card">
             <div className="download-icon">📖</div>
             <div className="download-content">
-              <h3>Download Quick Reference Guide</h3>
-              <p>Get a printable PDF with all common legal terms and their explanations</p>
+              <h3>{t('decoder.downloadTitle')}</h3>
+              <p>{t('decoder.downloadDescription')}</p>
             </div>
             <button className="btn btn-primary">
-              📥 Download PDF
+              📥 {t('decoder.downloadButton')}
             </button>
           </div>
         </section>

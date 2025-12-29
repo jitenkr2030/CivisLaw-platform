@@ -1,8 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useLanguage } from '../utils/LanguageContext';
+import { t } from '../utils/i18n';
 
 export default function HomePage() {
+  const { language } = useLanguage();
+
   return (
     <div className="home-page">
       {/* Hero Section */}
@@ -10,20 +14,18 @@ export default function HomePage() {
         <div className="container">
           <div className="hero-content">
             <h1 id="hero-title" className="hero-title">
-              Understanding Justice,<br />
-              <span className="highlight">Together</span>
+              {t('home.title', language)}<br />
+              <span className="highlight">{t('home.cta', language)}</span>
             </h1>
             <p className="hero-description">
-              Bridging the gap between the judicial system and citizens. We provide clear, 
-              human-understandable explanations of court processes, documents, and proceedings 
-              — without giving legal advice.
+              {t('home.subtitle', language)}
             </p>
             <div className="hero-actions">
               <Link href="/document-explainer" className="btn btn-primary btn-large">
-                📄 Explain My Document
+                📄 {t('nav.documentExplainer', language)}
               </Link>
               <Link href="/recorder" className="btn btn-outline btn-large">
-                🎤 Record Statement
+                🎤 {t('nav.statementRecorder', language)}
               </Link>
             </div>
           </div>
@@ -31,7 +33,7 @@ export default function HomePage() {
           <div className="hero-visual">
             <div className="hero-card">
               <div className="hero-icon">⚖️</div>
-              <p>"Justice does not become fair by being delivered — <br/>it becomes fair when it is understood."</p>
+              <p>"{t('home.tagline', language)}"</p>
             </div>
           </div>
         </div>
@@ -49,9 +51,10 @@ export default function HomePage() {
               the justice they deserve.
             </p>
             <p className="mission-text">
-              <strong>CivisLaw is here to help.</strong> We are an "understanding layer" between 
-              the judicial system and citizens — translating complexity into clarity while 
-              respecting the authority of courts and the importance of legal professionals.
+              <strong>{t('common.civisLaw', language)} {t('nav.home', language) === 'Home' ? 'is here to help' : 'यहाँ मदद करने के लिए है'}</strong> 
+              {language === 'en' ? '. We are an "understanding layer" between the judicial system and citizens — translating complexity into clarity while respecting the authority of courts and the importance of legal professionals.' : 
+               language === 'hi' ? '. हम न्यायिक प्रणाली और नागरिकों के बीच एक "समझ की परत" हैं — न्यायालयों के अधिकार और विधिक पेशेवरों के महत्व का सम्मान करते हुए जटिलता को स्पष्टता में अनुवाद करना।' :
+               '. We are an "understanding layer" between the judicial system and citizens.'}
             </p>
           </div>
         </div>
@@ -94,7 +97,7 @@ export default function HomePage() {
       {/* Features Section */}
       <section className="features" aria-labelledby="features-title">
         <div className="container">
-          <h2 id="features-title" className="section-title text-center">Platform Features</h2>
+          <h2 id="features-title" className="section-title text-center">{t('home.features', language)}</h2>
           <p className="section-subtitle text-center">
             Tools designed to help you understand and navigate the legal system
           </p>
@@ -106,11 +109,9 @@ export default function HomePage() {
                 <div className="feature-icon-large">📄</div>
                 <div className="feature-badge">Core Feature</div>
               </div>
-              <h3>Court Language → Human Language Engine</h3>
+              <h3>{t('home.feature1Title', language)}</h3>
               <p>
-                Upload court orders, FIRs, charge sheets, or notices and get clear, 
-                simple explanations in your language. We break down complex legal 
-                English into plain, understandable terms.
+                {t('home.feature1Desc', language)}
               </p>
               <ul className="feature-list">
                 <li>✓ Plain-language explanations</li>
@@ -119,7 +120,7 @@ export default function HomePage() {
                 <li>✓ Multi-language support</li>
               </ul>
               <Link href="/document-explainer" className="btn btn-primary">
-                Try Document Explainer →
+                {t('nav.documentExplainer', language)} →
               </Link>
             </article>
 
@@ -129,11 +130,9 @@ export default function HomePage() {
                 <div className="feature-icon-large">🎤</div>
                 <div className="feature-badge badge-warning">Sensitive Cases</div>
               </div>
-              <h3>Victim Statement Recorder</h3>
+              <h3>{t('home.feature2Title', language)}</h3>
               <p>
-                A safe, dignified way to record your statement in your own language. 
-                Designed especially for sexual violence and sensitive cases with 
-                trauma-aware design.
+                {t('home.feature2Desc', language)}
               </p>
               <ul className="feature-list">
                 <li>✓ Voice recording in your language</li>
@@ -142,7 +141,7 @@ export default function HomePage() {
                 <li>✓ Full control over your data</li>
               </ul>
               <Link href="/recorder" className="btn btn-primary">
-                Try Statement Recorder →
+                {t('nav.statementRecorder', language)} →
               </Link>
             </article>
 
@@ -152,10 +151,9 @@ export default function HomePage() {
                 <div className="feature-icon-large">🌐</div>
                 <div className="feature-badge">Real-Time</div>
               </div>
-              <h3>AI Court Translator</h3>
+              <h3>{t('home.feature3Title', language)}</h3>
               <p>
-                Real-time translation of spoken court language for comprehension only. 
-                Understand what is being said in court without relying on others.
+                {t('home.feature3Desc', language)}
               </p>
               <ul className="feature-list">
                 <li>✓ Live subtitles in your language</li>
@@ -164,7 +162,7 @@ export default function HomePage() {
                 <li>✓ Clearly marked as non-official</li>
               </ul>
               <Link href="/translator" className="btn btn-primary">
-                Try Court Translator →
+                {t('nav.courtTranslator', language)} →
               </Link>
             </article>
 
@@ -174,10 +172,9 @@ export default function HomePage() {
                 <div className="feature-icon-large">📖</div>
                 <div className="feature-badge">Quick Reference</div>
               </div>
-              <h3>Legal Word Decoder</h3>
+              <h3>{t('home.feature4Title', language)}</h3>
               <p>
-                Confused by legal terms? Tap on any legal word to get a simple, 
-                one-line explanation with real-life examples.
+                {t('home.feature4Desc', language)}
               </p>
               <ul className="feature-list">
                 <li>✓ One-tap explanations</li>
@@ -186,7 +183,7 @@ export default function HomePage() {
                 <li>✓ Available everywhere</li>
               </ul>
               <Link href="/decoder" className="btn btn-primary">
-                Try Word Decoder →
+                {t('nav.wordDecoder', language)} →
               </Link>
             </article>
 
@@ -196,10 +193,9 @@ export default function HomePage() {
                 <div className="feature-icon-large">📅</div>
                 <div className="feature-badge">Visual Guide</div>
               </div>
-              <h3>Case Journey Timeline</h3>
+              <h3>{t('home.feature5Title', language)}</h3>
               <p>
-                Understand where you are in the legal process and what to expect next. 
-                A calm, non-threatening visual guide to your case journey.
+                {t('home.feature5Desc', language)}
               </p>
               <ul className="feature-list">
                 <li>✓ Visual timeline stages</li>
@@ -208,7 +204,7 @@ export default function HomePage() {
                 <li>✓ Trauma-informed design</li>
               </ul>
               <Link href="/timeline" className="btn btn-primary">
-                View Case Timeline →
+                {t('nav.caseTimeline', language)} →
               </Link>
             </article>
 
@@ -268,9 +264,7 @@ export default function HomePage() {
             
             <div className="disclaimer-banner">
               <p>
-                <strong>Important:</strong> CivisLaw is an educational and informational tool only. 
-                We do not provide legal advice, legal opinions, or legal recommendations. 
-                Always consult a qualified lawyer for legal matters affecting your rights.
+                <strong>{t('home.disclaimerTitle', language)}:</strong> {t('home.disclaimerText', language)}
               </p>
             </div>
           </div>
