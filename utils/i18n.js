@@ -1080,6 +1080,617 @@ export const translations = {
       builtWith: 'सर्व नागरिकांच्या गौरव आणि आदराने बांधलेले.',
     },
   },
+
+  // Authentication pages
+  auth: {
+    en: {
+      // General
+      strong: 'Strong',
+      medium: 'Medium',
+      weak: 'Weak',
+      optional: 'optional',
+      privacyNotice: 'Your data is protected with end-to-end encryption and is never shared without your consent.',
+
+      // Error messages
+      errors: {
+        nameRequired: 'Full name is required',
+        nameTooShort: 'Name must be at least 2 characters',
+        emailRequired: 'Email address is required',
+        invalidEmail: 'Please enter a valid email address',
+        emailOrPhoneRequired: 'Email or phone number is required',
+        invalidPhone: 'Please enter a valid phone number',
+        phoneRequired: 'Phone number is required',
+        passwordRequired: 'Password is required',
+        passwordsNotMatch: 'Passwords do not match',
+        registrationFailed: 'Registration failed. Please try again.',
+        loginFailed: 'Login failed. Please try again.',
+        requestFailed: 'Request failed. Please try again.',
+        networkError: 'A network error occurred. Please check your connection and try again.',
+        invalidToken: 'Invalid or expired reset link',
+        resetFailed: 'Password reset failed. Please try again.'
+      },
+
+      // Registration page
+      register: {
+        title: 'Create Your Account',
+        subtitle: 'Join CivisLaw to access legal understanding tools',
+        fullName: 'Full Name',
+        fullNamePlaceholder: 'Enter your full name',
+        email: 'Email Address',
+        emailPlaceholder: 'Enter your email address',
+        phone: 'Phone Number',
+        phonePlaceholder: 'Enter your phone number (optional)',
+        password: 'Password',
+        passwordPlaceholder: 'Create a strong password',
+        confirmPassword: 'Confirm Password',
+        confirmPasswordPlaceholder: 'Confirm your password',
+        createAccount: 'Create Account',
+        creatingAccount: 'Creating Account...',
+        alreadyHaveAccount: 'Already have an account?',
+        loginHere: 'Login here'
+      },
+
+      // Login page
+      login: {
+        title: 'Welcome Back',
+        subtitle: 'Sign in to access your CivisLaw account',
+        emailOrPhone: 'Email or Phone',
+        emailOrPhonePlaceholder: 'Enter your email or phone number',
+        password: 'Password',
+        passwordPlaceholder: 'Enter your password',
+        rememberMe: 'Remember me',
+        forgotPassword: 'Forgot password?',
+        loginButton: 'Sign In',
+        loggingIn: 'Signing in...',
+        dontHaveAccount: "Don't have an account?",
+        registerHere: 'Register here',
+        registrationSuccess: 'Account created successfully! Please sign in with your new account.'
+      },
+
+      // Forgot password page
+      forgot: {
+        title: 'Reset Your Password',
+        subtitle: 'Enter your email address and we will send you a link to reset your password.',
+        emailLabel: 'Email Address',
+        emailPlaceholder: 'Enter your registered email',
+        sendLink: 'Send Reset Link',
+        sending: 'Sending...',
+        successTitle: 'Check Your Email',
+        successMessage: 'If an account exists with this email, you will receive a password reset link shortly.',
+        instructionsTitle: 'What to do next:',
+        instruction1: 'Check your email inbox (and spam folder)',
+        instruction2: 'Click on the password reset link',
+        instruction3: 'Create a new secure password',
+        backToLogin: 'Back to Login',
+        privacyNote: 'For security reasons, password reset links expire after 1 hour.'
+      },
+
+      // Reset password page
+      reset: {
+        title: 'Set New Password',
+        subtitle: 'Create a strong password for your account',
+        newPassword: 'New Password',
+        newPasswordPlaceholder: 'Enter new password',
+        confirmPassword: 'Confirm New Password',
+        confirmPasswordPlaceholder: 'Confirm new password',
+        resetButton: 'Reset Password',
+        resetting: 'Resetting...',
+        successTitle: 'Password Reset Complete',
+        successMessage: 'Your password has been successfully reset. You can now sign in with your new password.',
+        goToLogin: 'Go to Login',
+        invalidTokenTitle: 'Invalid Reset Link',
+        invalidTokenMessage: 'This password reset link is invalid or has expired.',
+        invalidToken: 'Invalid or expired reset link',
+        requestNewLink: 'Request New Reset Link',
+        backToLogin: 'Back to Login'
+      }
+    },
+    hi: {
+      // General
+      strong: 'मजबूत',
+      medium: 'मध्यम',
+      weak: 'कमज़ोर',
+      optional: 'वैकल्पिक',
+      privacyNotice: 'आपका डेटा एंड-टू-एंड एन्क्रिप्शन से सुरक्षित है और आपकी सहमति के बिना कभी साझा नहीं किया जाता।',
+
+      // Error messages
+      errors: {
+        nameRequired: 'पूरा नाम आवश्यक है',
+        nameTooShort: 'नाम कम से कम 2 अक्षर का होना चाहिए',
+        emailRequired: 'ईमेल पता आवश्यक है',
+        invalidEmail: 'कृपया एक वैध ईमेल पता दर्ज करें',
+        emailOrPhoneRequired: 'ईमेल या फ़ोन नंबर आवश्यक है',
+        invalidPhone: 'कृपया एक वैध फ़ोन नंबर दर्ज करें',
+        phoneRequired: 'फ़ोन नंबर आवश्यक है',
+        passwordRequired: 'पासवर्ड आवश्यक है',
+        passwordsNotMatch: 'पासवर्ड मेल नहीं खाते',
+        registrationFailed: 'पंजीकरण विफल। कृपया पुनः प्रयास करें।',
+        loginFailed: 'लॉगिन विफल। कृपया पुनः प्रयास करें।',
+        requestFailed: 'अनुरोध विफल। कृपया पुनः प्रयास करें।',
+        networkError: 'एक नेटवर्क त्रुटि हुई। कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें।',
+        resetFailed: 'पासवर्ड रीसेट विफल। कृपया पुनः प्रयास करें।'
+      },
+
+      // Registration page
+      register: {
+        title: 'अपना खाता बनाएं',
+        subtitle: 'कानूनी समझ उपकरणों तक पहुंचने के लिए CivisLaw से जुड़ें',
+        fullName: 'पूरा नाम',
+        fullNamePlaceholder: 'अपना पूरा नाम दर्ज करें',
+        email: 'ईमेल पता',
+        emailPlaceholder: 'अपना ईमेल पता दर्ज करें',
+        phone: 'फ़ोन नंबर',
+        phonePlaceholder: 'अपना फ़ोन नंबर दर्ज करें (वैकल्पिक)',
+        password: 'पासवर्ड',
+        passwordPlaceholder: 'एक मजबूत पासवर्ड बनाएं',
+        confirmPassword: 'पासवर्ड की पुष्टि करें',
+        confirmPasswordPlaceholder: 'अपना पासवर्ड पुष्टि करें',
+        createAccount: 'खाता बनाएं',
+        creatingAccount: 'खाता बनाया जा रहा है...',
+        alreadyHaveAccount: 'क्या आपके पास पहले से एक खाता है?',
+        loginHere: 'यहां लॉगिन करें'
+      },
+
+      // Login page
+      login: {
+        title: 'वापसी पर स्वागत है',
+        subtitle: 'अपने CivisLaw खाते में प्रवेश करें',
+        emailOrPhone: 'ईमेल या फ़ोन',
+        emailOrPhonePlaceholder: 'अपना ईमेल या फ़ोन नंबर दर्ज करें',
+        password: 'पासवर्ड',
+        passwordPlaceholder: 'अपना पासवर्ड दर्ज करें',
+        rememberMe: 'मुझे याद रखें',
+        forgotPassword: 'पासवर्ड भूल गए?',
+        loginButton: 'साइन इन करें',
+        loggingIn: 'साइन इन हो रहा है...',
+        dontHaveAccount: 'क्या आपके पास खाता नहीं है?',
+        registerHere: 'यहां पंजीकरण करें',
+        registrationSuccess: 'खाता सफलतापूर्वक बनाया गया! कृपया अपने नए खाते से साइन इन करें।'
+      },
+
+      // Forgot password page
+      forgot: {
+        title: 'अपना पासवर्ड रीसेट करें',
+        subtitle: 'अपना ईमेल पता दर्ज करें और हम आपको पासवर्ड रीसेट लिंक भेजेंगे।',
+        emailLabel: 'ईमेल पता',
+        emailPlaceholder: 'अपना पंजीकृत ईमेल दर्ज करें',
+        sendLink: 'रीसेट लिंक भेजें',
+        sending: 'भेजा जा रहा है...',
+        successTitle: 'अपना ईमेल जांचें',
+        successMessage: 'यदि इस ईमेल से एक खाता मौजूद है, तो आपको जल्द ही एक पासवर्ड रीसेट लिंक प्राप्त होगा।',
+        instructionsTitle: 'आगे क्या करें:',
+        instruction1: 'अपना ईमेल इनबॉक्स (और स्पैम फ़ोल्डर) जांचें',
+        instruction2: 'पासवर्ड रीसेट लिंक पर क्लिक करें',
+        instruction3: 'एक नया सुरक्षित पासवर्ड बनाएं',
+        backToLogin: 'लॉगिन पर वापस जाएं',
+        privacyNote: 'सुरक्षा कारणों के लिए, पासवर्ड रीसेट लिंक 1 घंटे के बाद समाप्त हो जाते हैं।'
+      },
+
+      // Reset password page
+      reset: {
+        title: 'नया पासवर्ड सेट करें',
+        subtitle: 'अपने खाते के लिए एक मजबूत पासवर्ड बनाएं',
+        newPassword: 'नया पासवर्ड',
+        newPasswordPlaceholder: 'नया पासवर्ड दर्ज करें',
+        confirmPassword: 'नए पासवर्ड की पुष्टि करें',
+        confirmPasswordPlaceholder: 'नए पासवर्ड की पुष्टि करें',
+        resetButton: 'पासवर्ड रीसेट करें',
+        resetting: 'रीसेट हो रहा है...',
+        successTitle: 'पासवर्ड रीसेट पूर्ण',
+        successMessage: 'आपका पासवर्ड सफलतापूर्वक रीसेट हो गया है। अब आप अपने नए पासवर्ड से साइन इन कर सकते हैं।',
+        goToLogin: 'लॉगिन पर जाएं',
+        invalidTokenTitle: 'अमान्य रीसेट लिंक',
+        invalidTokenMessage: 'यह पासवर्ड रीसेट लिंक अमान्य है या समाप्त हो गया है।',
+        invalidToken: 'अमान्य या समाप्त रीसेट लिंक',
+        requestNewLink: 'नया रीसेट लिंक अनुरोध करें',
+        backToLogin: 'लॉगिन पर वापस जाएं'
+      }
+    },
+    ta: {
+      // General
+      strong: 'வலுவான',
+      medium: 'நடுத்தர',
+      weak: 'பலவீனமான',
+      optional: 'விருப்பம்',
+      privacyNotice: 'உங்கள் தரவு எண்ட்-டு-எண்ட் என்கிரிப்சனால் பாதுகாக்கப்பட்டது மற்றும் உங்கள் சம்மதம் இல்லாமல் ஒருபோதும் பகிரப்படாது.',
+
+      // Error messages
+      errors: {
+        nameRequired: 'முழு பெயர் தேவை',
+        nameTooShort: 'பெயர் குறைந்தது 2 எழுத்து இருக்க வேண்டும்',
+        emailRequired: 'ஈமேல் முகவரி தேவை',
+        invalidEmail: 'சரியான ஈமேல் முகவரி ஒன்றை உள்ளிடவும்',
+        emailOrPhoneRequired: 'ஈமேல் அல்லது தொலைபேசி எண் தேவை',
+        invalidPhone: 'சரியான தொலைபேசி எண் ஒன்றை உள்ளிடவும்',
+        phoneRequired: 'தொலைபேசி எண் தேவை',
+        passwordRequired: 'கடவுச்சொல் தேவை',
+        passwordsNotMatch: 'கடவுச்சொற்கள் பொருந்தவில்லை',
+        registrationFailed: 'பதிவு தோல்வியடைந்தது. மீண்டும் முயலவும்.',
+        loginFailed: 'உள்நுழைவு தோல்வியடைந்தது. மீண்டும் முயலவும்.',
+        requestFailed: 'கோரிக்கை தோல்வியடைந்தது. மீண்டும் முயலவும்.',
+        networkError: 'ஒரு நெட்வொர்க் பிழை ஏற்பட்டது. உங்கள் இணைப்பை சரிபார்த்து மீண்டும் முயலவும்.',
+        resetFailed: 'கடவுச்சொல் மீட்டெடுப்பு தோல்வியடைந்தது. மீண்டும் முயலவும்.'
+      },
+
+      // Registration page
+      register: {
+        title: 'உங்கள் கணக்கை உருவாக்கவும்',
+        subtitle: 'சட்ட நிறுவன புரிதல் கருவிகளை அணுக CivisLaw உடன் சேருங்கள்',
+        fullName: 'முழு பெயர்',
+        fullNamePlaceholder: 'உங்கள் முழு பெயரை உள்ளிடவும்',
+        email: 'ஈமேல் முகவரி',
+        emailPlaceholder: 'உங்கள் ஈமேல் முகவரியை உள்ளிடவும்',
+        phone: 'தொலைபேசி எண்',
+        phonePlaceholder: 'உங்கள் தொலைபேசி எண்ணை உள்ளிடவும் (விருப்பம்)',
+        password: 'கடவுச்சொல்',
+        passwordPlaceholder: 'வலுவான கடவுச்சொல் உருவாக்கவும்',
+        confirmPassword: 'கடவுச்சொல்லை உறுதிப்படுத்தவும்',
+        confirmPasswordPlaceholder: 'உங்கள் கடவுச்சொல்லை உறுதிப்படுத்தவும்',
+        createAccount: 'கணக்கை உருவாக்கு',
+        creatingAccount: 'கணக்கை உருவாக்குகிறது...',
+        alreadyHaveAccount: 'ஏற்கனவே கணக்கு உள்ளதா?',
+        loginHere: 'இங்கே உள்நுழைக'
+      },
+
+      // Login page
+      login: {
+        title: 'மீண்டும் வரவேற்பு',
+        subtitle: 'உங்கள் CivisLaw கணக்கை அணுக உள்நுழைக',
+        emailOrPhone: 'ஈமேல் அல்லது தொலைபேசி',
+        emailOrPhonePlaceholder: 'உங்கள் ஈமேல் அல்லது தொலைபேசி எண்ணை உள்ளிடவும்',
+        password: 'கடவுச்சொல்',
+        passwordPlaceholder: 'உங்கள் கடவுச்சொல்லை உள்ளிடவும்',
+        rememberMe: 'என்னை நினைவில் கொள்',
+        forgotPassword: 'கடவுச்சொல் மறந்துவிட்டதா?',
+        loginButton: 'உள்நுழைக',
+        loggingIn: 'உள்நுழைகிறது...',
+        dontHaveAccount: 'கணக்கு இல்லையா?',
+        registerHere: 'இங்கே பதிவு செய்யவும்',
+        registrationSuccess: 'கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது! உங்கள் புதிய கணக்கில் உள்நுழையவும்.'
+      },
+
+      // Forgot password page
+      forgot: {
+        title: 'உங்கள் கடவுச்சொல்லை மீட்டமைக்கவும்',
+        subtitle: 'உங்கள் ஈமேல் முகவரியை உள்ளிடவும், கடவுச்சொல் மீட்டமைப்பு இணைப்பை அனுப்புவோம்.',
+        emailLabel: 'ஈமேல் முகவரி',
+        emailPlaceholder: 'பதிவு செய்யப்பட்ட ஈமேலை உள்ளிடவும்',
+        sendLink: 'மீட்டமைப்பு இணைப்பை அனுப்பு',
+        sending: 'அனுப்புகிறது...',
+        successTitle: 'உங்கள் ஈமேலை சரிபார்க்கவும்',
+        successMessage: 'இந்த ஈமேலில் கணக்கு இருந்தால், கடவுச்சொல் மீட்டமைப்பு இணைப்பை விரைவில் பெறுவீர்கள்.',
+        instructionsTitle: 'அடுத்து என்ன செய்வது:',
+        instruction1: 'உங்கள் ஈமேல் இன்பாக்ஸை (ஸ்பாம் கோப்புறையும்) சரிபார்க்கவும்',
+        instruction2: 'கடவுச்சொல் மீட்டமைப்பு இணைப்பைக் கிளிக் செய்யவும்',
+        instruction3: 'புதிய பாதுகாப்பான கடவுச்சொல் உருவாக்கவும்',
+        backToLogin: 'உள்நுழைவுக்குத் திரும்பு',
+        privacyNote: 'பாதுகாப்பு காரணங்களுக்காக, கடவுச்சொல் மீட்டமைப்பு இணைப்புகள் 1 மணி நேரத்திற்குப் பிறகு காலாவதியாகிவிடும்.'
+      },
+
+      // Reset password page
+      reset: {
+        title: 'புதிய கடவுச்சொல் அமைக்கவும்',
+        subtitle: 'உங்கள் கணக்கிற்கு வலுவான கடவுச்சொல் உருவாக்கவும்',
+        newPassword: 'புதிய கடவுச்சொல்',
+        newPasswordPlaceholder: 'புதிய கடவுச்சொல்லை உள்ளிடவும்',
+        confirmPassword: 'புதிய கடவுச்சொல்லை உறுதிப்படுத்தவும்',
+        confirmPasswordPlaceholder: 'புதிய கடவுச்சொல்லை உறுதிப்படுத்தவும்',
+        resetButton: 'கடவுச்சொல் மீட்டமைக்கவும்',
+        resetting: 'மீட்டமைக்கிறது...',
+        successTitle: 'கடவுச்சொல் மீட்டமைப்பு முடிந்தது',
+        successMessage: 'உங்கள் கடவுச்சொல் வெற்றிகரமாக மீட்டமைக்கப்பட்டது. இப்போது உங்கள் புதிய கடவுச்சொல்லை உள்நுழையலாம்.',
+        goToLogin: 'உள்நுழைவுக்கு செல்லவும்',
+        invalidTokenTitle: 'தவறான மீட்டமைப்பு இணைப்பு',
+        invalidTokenMessage: 'இந்த கடவுச்சொல் மீட்டமைப்பு இணைப்பு தவறானது அல்லது காலாவதியாகிவிட்டது.',
+        invalidToken: 'தவறான அல்லது காலாவதியான மீட்டமைப்பு இணைப்பு',
+        requestNewLink: 'புதிய மீட்டமைப்பு இணைப்பைக் கோருக',
+        backToLogin: 'உள்நுழைவுக்குத் திரும்பு'
+      }
+    },
+    te: {
+      // General
+      strong: 'బలమైన',
+      medium: 'మధ్యమ',
+      weak: 'బలహీన',
+      optional: 'ఐచ్ఛికం',
+      privacyNotice: 'మీ డేటా ఎండ్-టు-ఎండ్ ఎన్క్రిప్షన్ ద్వారా రక్షించబడుతుంది మరియు మీ సమ్మతి లేకుండా ఎప్పుడూ పంచబడదు.',
+
+      // Error messages
+      errors: {
+        nameRequired: 'పూర్తి పేరు తప్పనిసరి',
+        nameTooShort: 'పేరు కనీసం 2 అక్షరాలు ఉండాలి',
+        emailRequired: 'ఇమెయిల్ చిరునామా తప్పనిసరి',
+        invalidEmail: 'దయచేసి చెల్లుబాటు అయ్యే ఇమెయిల్ చిరునామాను నమోదు చేయండి',
+        emailOrPhoneRequired: 'ఇమెయిల్ లేదా ఫోన్ నంబర్ తప్పనిసరి',
+        invalidPhone: 'దయచేసి చెల్లుబాటు అయ్యే ఫోన్ నంబర్‌ను నమోదు చేయండి',
+        phoneRequired: 'ఫోన్ నంబర్ తప్పనిసరి',
+        passwordRequired: 'పాస్‌వర్డ్ తప్పనిసరి',
+        passwordsNotMatch: 'పాస్‌వర్డ్‌లు సరిపోలవు',
+        registrationFailed: 'నమోదు విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.',
+        loginFailed: 'లాగిన్ విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.',
+        requestFailed: 'అభ్యర్థన విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.',
+        networkError: 'ఒక నెట్వర్క్ లోపం సంభవించింది. దయచేసి మీ కనెక్షన్‌ను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.',
+        resetFailed: 'పాస్‌వర్డ్ రీసెట్ విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.'
+      },
+
+      // Registration page
+      register: {
+        title: 'మీ ఖాతాను సృష్టించండి',
+        subtitle: 'చట్టపరమైన అవగాహన సాధనాలకు యాక్సెస్ కోసం CivisLaw‌తో చేరండి',
+        fullName: 'పూర్తి పేరు',
+        fullNamePlaceholder: 'మీ పూర్తి పేరును నమోదు చేయండి',
+        email: 'ఇమెయిల్ చిరునామా',
+        emailPlaceholder: 'మీ ఇమెయిల్ చిరునామాను నమోదు చేయండి',
+        phone: 'ఫోన్ నంబర్',
+        phonePlaceholder: 'మీ ఫోన్ నంబర్‌ను నమోదు చేయండి (ఐచ్ఛికం)',
+        password: 'పాస్‌వర్డ్',
+        passwordPlaceholder: 'బలమైన పాస్‌వర్డ్‌ను సృష్టించండి',
+        confirmPassword: 'పాస్‌వర్డ్‌ను నిర్ధారించండి',
+        confirmPasswordPlaceholder: 'మీ పాస్‌వర్డ్‌ను నిర్ధారించండి',
+        createAccount: 'ఖాతా సృష్టించు',
+        creatingAccount: 'ఖాతా సృష్టిస్తోంది...',
+        alreadyHaveAccount: 'ఇప్పటికే ఖాతా ఉందా?',
+        loginHere: 'ఇక్కడ లాగిన్ చేయండి'
+      },
+
+      // Login page
+      login: {
+        title: 'మీకు స్వాగతం',
+        subtitle: 'మీ CivisLaw ఖాతాకు యాక్సెస్ పొందడానికి సైన్ ఇన్ చేయండి',
+        emailOrPhone: 'ఇమెయిల్ లేదా ఫోన్',
+        emailOrPhonePlaceholder: 'మీ ఇమెయిల్ లేదా ఫోన్ నంబర్‌ను నమోదు చేయండి',
+        password: 'పాస్‌వర్డ్',
+        passwordPlaceholder: 'మీ పాస్‌వర్డ్‌ను నమోదు చేయండి',
+        rememberMe: 'నన్ను గుర్తుంచుకో',
+        forgotPassword: 'పాస్‌వర్డ్ మర్చిపోయారా?',
+        loginButton: 'సైన్ ఇన్',
+        loggingIn: 'సైన్ ఇన్ అవుతోంది...',
+        dontHaveAccount: 'ఖాతా లేదు?',
+        registerHere: 'ఇక్కడ నమోదు చేయండి',
+        registrationSuccess: 'ఖాతా విజయవంతంగా సృష్టించబడింది! దయచేసి మీ కొత్త ఖాతాతో సైన్ ఇన్ చేయండి.'
+      },
+
+      // Forgot password page
+      forgot: {
+        title: 'మీ పాస్‌వర్డ్‌ను రీసెట్ చేయండి',
+        subtitle: 'మీ ఇమెయిల్ చిరునామాను నమోదు చేస్తే, పాస్‌వర్డ్ రీసెట్ లింక్‌ని పంపుతాము.',
+        emailLabel: 'ఇమెయిల్ చిరునామా',
+        emailPlaceholder: 'నమోదు చేసిన ఇమెయిల్‌ను నమోదు చేయండి',
+        sendLink: 'రీసెట్ లింక్ పంపు',
+        sending: 'పంపుతోంది...',
+        successTitle: 'మీ ఇమెయిల్‌ను తనిఖీ చేయండి',
+        successMessage: 'ఈ ఇమెయిల్‌తో ఖాతా ఉంటే, మీరు త్వరలో పాస్‌వర్డ్ రీసెట్ లింక్‌ను పొందుతారు.',
+        instructionsTitle: 'తర్వాత ఏమి చేయాలి:',
+        instruction1: 'మీ ఇమెయిల్ ఇన్‌బాక్స్ (మరియు స్పామ్ ఫోల్డర్) ని తనిఖీ చేయండి',
+        instruction2: 'పాస్‌వర్డ్ రీసెట్ లింక్‌పై క్లిక్ చేయండి',
+        instruction3: 'కొత్త సురక్షిత పాస్‌వర్డ్‌ను సృష్టించండి',
+        backToLogin: 'లాగిన్‌కు తిరిగి వెళ్ళండి',
+        privacyNote: 'సురక్షత కారణాల కోసం, పాస్‌వర్డ్ రీసెట్ లింక్‌లు 1 గంట తర్వాత ఎక్స్‌పైర్ అవుతాయి.'
+      },
+
+      // Reset password page
+      reset: {
+        title: 'కొత్త పాస్‌వర్డ్‌ను సెట్ చేయండి',
+        subtitle: 'మీ ఖాతా కోసం బలమైన పాస్‌వర్డ్‌ను సృష్టించండి',
+        newPassword: 'కొత్త పాస్‌వర్డ్',
+        newPasswordPlaceholder: 'కొత్త పాస్‌వర్డ్‌ను నమోదు చేయండి',
+        confirmPassword: 'కొత్త పాస్‌వర్డ్‌ను నిర్ధారించండి',
+        confirmPasswordPlaceholder: 'కొత్త పాస్‌వర్డ్‌ను నిర్ధారించండి',
+        resetButton: 'పాస్‌వర్డ్‌ను రీసెట్ చేయండి',
+        resetting: 'రీసెట్ అవుతోంది...',
+        successTitle: 'పాస్‌వర్డ్ రీసెట్ పూర్తయింది',
+        successMessage: 'మీ పాస్‌వర్డ్ విజయవంతంగా రీసెట్ చేయబడింది. ఇప్పుడు మీ కొత్త పాస్‌వర్డ్‌తో సైన్ ఇన్ చేయవచ్చు.',
+        goToLogin: 'లాగిన్‌కు వెళ్ళండి',
+        invalidTokenTitle: 'చెల్లని రీసెట్ లింక్',
+        invalidTokenMessage: 'ఈ పాస్‌వర్డ్ రీసెట్ లింక్ చెల్లనిది లేదా ఎక్స్‌పైరైంది.',
+        invalidToken: 'చెల్లని లేదా ఎక్స్‌పైరైన రీసెట్ లింక్',
+        requestNewLink: 'కొత్త రీసెట్ లింక్‌ను అభ్యర్థించండి',
+        backToLogin: 'లాగిన్‌కు తిరిగి వెళ్ళండి'
+      }
+    },
+    bn: {
+      // General
+      strong: 'শক্তিশালী',
+      medium: 'মাঝারি',
+      weak: 'দুর্বল',
+      optional: 'ঐচ্ছিক',
+      privacyNotice: 'আপনার ডেটা এন্ড-টু-এন্ড এনক্রিপশন দিয়ে সুরক্ষিত এবং আপনার সম্মতি ছাড়া কখনো শেয়ার করা হয় না।',
+
+      // Error messages
+      errors: {
+        nameRequired: 'পুরো নাম প্রয়োজন',
+        nameTooShort: 'নাম কমপক্ষে 2 অক্ষরের হতে হবে',
+        emailRequired: 'ইমেইল ঠিকানা প্রয়োজন',
+        invalidEmail: 'দয়া করে একটি বৈধ ইমেইল ঠিকানা দিন',
+        emailOrPhoneRequired: 'ইমেইল বা ফোন নম্বর প্রয়োজন',
+        invalidPhone: 'দয়া করে একটি বৈধ ফোন নম্বর দিন',
+        phoneRequired: 'ফোন নম্বর প্রয়োজন',
+        passwordRequired: 'পাসওয়ার্ড প্রয়োজন',
+        passwordsNotMatch: 'পাসওয়ার্ড মেলে না',
+        registrationFailed: 'নিবন্ধন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।',
+        loginFailed: 'লগইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।',
+        requestFailed: 'অনুরোধ ব্যর্থ হয়েছে। আবার চেষ্টা করুন।',
+        networkError: 'একটি নেটওয়ার্ক ত্রুটি হয়েছে। আপনার সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।',
+        resetFailed: 'পাসওয়ার্ড রিসেট ব্যর্থ হয়েছে। আবার চেষ্টা করুন।'
+      },
+
+      // Registration page
+      register: {
+        title: 'আপনার অ্যাকাউন্ট তৈরি করুন',
+        subtitle: 'আইনি বোঝার সরঞ্জামগুলি অ্যাক্সেস করতে CivisLaw-এ যোগ দিন',
+        fullName: 'পুরো নাম',
+        fullNamePlaceholder: 'আপনার পুরো নাম লিখুন',
+        email: 'ইমেইল ঠিকানা',
+        emailPlaceholder: 'আপনার ইমেইল ঠিকানা লিখুন',
+        phone: 'ফোন নম্বর',
+        phonePlaceholder: 'আপনার ফোন নম্বর লিখুন (ঐচ্ছিক)',
+        password: 'পাসওয়ার্ড',
+        passwordPlaceholder: 'একটি শক্তিশালী পাসওয়ার্ড তৈরি করুন',
+        confirmPassword: 'পাসওয়ার্ড নিশ্চিত করুন',
+        confirmPasswordPlaceholder: 'আপনার পাসওয়ার্ড নিশ্চিত করুন',
+        createAccount: 'অ্যাকাউন্ট তৈরি করুন',
+        creatingAccount: 'অ্যাকাউন্ট তৈরি হচ্ছে...',
+        alreadyHaveAccount: 'ইতিমধ্যে একটি অ্যাকাউন্ট আছে?',
+        loginHere: 'এখানে লগইন করুন'
+      },
+
+      // Login page
+      login: {
+        title: 'ফিরে আসার জন্য স্বাগতম',
+        subtitle: 'আপনার CivisLaw অ্যাকাউন্ট অ্যাক্সেস করতে সাইন ইন করুন',
+        emailOrPhone: 'ইমেইল বা ফোন',
+        emailOrPhonePlaceholder: 'আপনার ইমেইল বা ফোন নম্বর লিখুন',
+        password: 'পাসওয়ার্ড',
+        passwordPlaceholder: 'আপনার পাসওয়ার্ড লিখুন',
+        rememberMe: 'আমাকে মনে রাখুন',
+        forgotPassword: 'পাসওয়ার্ড ভুলে গেছি?',
+        loginButton: 'সাইন ইন',
+        loggingIn: 'সাইন ইন হচ্ছে...',
+        dontHaveAccount: 'অ্যাকাউন্ট নেই?',
+        registerHere: 'এখানে নিবন্ধন করুন',
+        registrationSuccess: 'অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! দয়া করে আপনার নতুন অ্যাকাউন্টে সাইন ইন করুন।'
+      },
+
+      // Forgot password page
+      forgot: {
+        title: 'আপনার পাসওয়ার্ড রিসেট করুন',
+        subtitle: 'আপনার ইমেইল ঠিকানা লিখুন এবং আমরা আপনাকে পাসওয়ার্ড রিসেট লিংক পাঠাব।',
+        emailLabel: 'ইমেইল ঠিকানা',
+        emailPlaceholder: 'রেজিস্টার্ড ইমেইল লিখুন',
+        sendLink: 'রিসেট লিংক পাঠান',
+        sending: 'পাঠানো হচ্ছে...',
+        successTitle: 'আপনার ইমেইল চেক করুন',
+        successMessage: 'যদি এই ইমেইলে একটি অ্যাকাউন্ট থাকে, তাহলে আপনি শীঘ্রই একটি পাসওয়ার্ড রিসেট লিংক পাবেন।',
+        instructionsTitle: 'পরবর্তী কী করবেন:',
+        instruction1: 'আপনার ইমেইল ইনবক্স (এবং স্প্যাম ফোল্ডার) চেক করুন',
+        instruction2: 'পাসওয়ার্ড রিসেট লিংকে ক্লিক করুন',
+        instruction3: 'একটি নতুন সুরক্ষিত পাসওয়ার্ড তৈরি করুন',
+        backToLogin: 'লগইনে ফিরে যান',
+        privacyNote: 'নিরাপত্তা কারণে, পাসওয়ার্ড রিসেট লিংক 1 ঘন্টার পরে মেয়াদ শেষ হয়ে যায়।'
+      },
+
+      // Reset password page
+      reset: {
+        title: 'নতুন পাসওয়ার্ড সেট করুন',
+        subtitle: 'আপনার অ্যাকাউন্টের জন্য একটি শক্তিশালী পাসওয়ার্ড তৈরি করুন',
+        newPassword: 'নতুন পাসওয়ার্ড',
+        newPasswordPlaceholder: 'নতুন পাসওয়ার্ড লিখুন',
+        confirmPassword: 'নতুন পাসওয়ার্ড নিশ্চিত করুন',
+        confirmPasswordPlaceholder: 'নতুন পাসওয়ার্ড নিশ্চিত করুন',
+        resetButton: 'পাসওয়ার্ড রিসেট করুন',
+        resetting: 'রিসেট হচ্ছে...',
+        successTitle: 'পাসওয়ার্ড রিসেট সম্পূর্ণ',
+        successMessage: 'আপনার পাসওয়ার্ড সফলভাবে রিসেট হয়েছে। এখন আপনি আপনার নতুন পাসওয়ার্ড দিয়ে সাইন ইন করতে পারেন।',
+        goToLogin: 'লগইনে যান',
+        invalidTokenTitle: 'অবৈধ রিসেট লিংক',
+        invalidTokenMessage: 'এই পাসওয়ার্ড রিসেট লিংক অবৈধ বা মেয়াদ শেষ হয়ে গেছে।',
+        invalidToken: 'অবৈধ বা মেয়াদ শেষ রিসেট লিংক',
+        requestNewLink: 'নতুন রিসেট লিংক অনুরোধ করুন',
+        backToLogin: 'লগইনে ফিরে যান'
+      }
+    },
+    mr: {
+      // General
+      strong: 'मजबूत',
+      medium: 'मध्यम',
+      weak: 'कमजोर',
+      optional: 'वैकल्पिक',
+      privacyNotice: 'आपला डेटा एंड-टू-एंड एन्क्रिप्शनने सुरक्षित आहे आणि आपल्या संमतीशिवाय कधीही सामायिक केला जात नाही.',
+
+      // Error messages
+      errors: {
+        nameRequired: 'पूर्ण नाव आवश्यक आहे',
+        nameTooShort: 'नाव कमीत कमी 2 अक्षरांचे असावे',
+        emailRequired: 'ईमेल पत्ता आवश्यक आहे',
+        invalidEmail: 'कृपया वैध ईमेल पत्ता प्रविष्ट करा',
+        emailOrPhoneRequired: 'ईमेल किंवा फोन नंबर आवश्यक आहे',
+        invalidPhone: 'कृपया वैध फोन नंबर प्रविष्ट करा',
+        phoneRequired: 'फोन नंबर आवश्यक आहे',
+        passwordRequired: 'पासवर्ड आवश्यक आहे',
+        passwordsNotMatch: 'पासवर्ड जुळत नाहीत',
+        registrationFailed: 'नोंदणी अयशस्वी झाली. कृपया पुन्हा प्रयत्न करा.',
+        loginFailed: 'लॉगिन अयशस्वी झाली. कृपया पुन्हा प्रयत्न करा.',
+        requestFailed: 'विनंती अयशस्वी झाली. कृपया पुन्हा प्रयत्न करा.',
+        networkError: 'नेटवर्क त्रुटी झाली. कृपया आपले कनेक्शन तपासून पुन्हा प्रयत्न करा.',
+        resetFailed: 'पासवर्ड रीसेट अयशस्वी झाला. कृपया पुन्हा प्रयत्न करा.'
+      },
+
+      // Registration page
+      register: {
+        title: 'आपले खाते तयार करा',
+        subtitle: 'कायदेशीर समज साधनांमध्ये प्रवेश करण्यासाठी CivisLaw सोबत सामील व्हा',
+        fullName: 'पूर्ण नाव',
+        fullNamePlaceholder: 'आपले पूर्ण नाव प्रविष्ट करा',
+        email: 'ईमेल पत्ता',
+        emailPlaceholder: 'आपला ईमेल पत्ता प्रविष्ट करा',
+        phone: 'फोन नंबर',
+        phonePlaceholder: 'आपला फोन नंबर प्रविष्ट करा (वैकल्पिक)',
+        password: 'पासवर्ड',
+        passwordPlaceholder: 'मजबूत पासवर्ड तयार करा',
+        confirmPassword: 'पासवर्डची पुष्टी करा',
+        confirmPasswordPlaceholder: 'आपला पासवर्ड पुष्टी करा',
+        createAccount: 'खाते तयार करा',
+        creatingAccount: 'खाते तयार होत आहे...',
+        alreadyHaveAccount: 'आधीच खाते आहे?',
+        loginHere: 'येथे लॉगिन करा'
+      },
+
+      // Login page
+      login: {
+        title: 'पुन्हा स्वागत आहे',
+        subtitle: 'आपल्या CivisLaw खात्यात प्रवेश करण्यासाठी साइन इन करा',
+        emailOrPhone: 'ईमेल किंवा फोन',
+        emailOrPhonePlaceholder: 'आपला ईमेल किंवा फोन नंबर प्रविष्ट करा',
+        password: 'पासवर्ड',
+        passwordPlaceholder: 'आपला पासवर्ड प्रविष्ट करा',
+        rememberMe: 'मला लक्षात ठेवा',
+        forgotPassword: 'पासवर्ड विसरलात?',
+        loginButton: 'साइन इन करा',
+        loggingIn: 'साइन इन होत आहे...',
+        dontHaveAccount: 'खाते नाही?',
+        registerHere: 'येथे नोंदणी करा',
+        registrationSuccess: 'खाते यशस्वीरित्या तयार झाले! कृपया आपल्या नवीन खात्याने साइन इन करा.'
+      },
+
+      // Forgot password page
+      forgot: {
+        title: 'आपला पासवर्ड रीसेट करा',
+        subtitle: 'आपला ईमेल पत्ता प्रविष्ट करा आणि आम्ही आपल्याला पासवर्ड रीसेट लिंक पाठवू.',
+        emailLabel: 'ईमेल पत्ता',
+        emailPlaceholder: 'नोंदणीकृत ईमेल प्रविष्ट करा',
+        sendLink: 'रीसेट लिंक पाठवा',
+        sending: 'पाठवत आहे...',
+        successTitle: 'आपला ईमेल तपासा',
+        successMessage: 'जर या ईमेलसह खाते असेल, तर आपल्याला लवकरच पासवर्ड रीसेट लिंक मिळेल.',
+        instructionsTitle: 'पुढे काय करावे:',
+        instruction1: 'आपला ईमेल इनबॉक्स (आणि स्पॅम फोल्डर) तपासा',
+        instruction2: 'पासवर्ड रीसेट लिंकवर क्लिक करा',
+        instruction3: 'नवा सुरक्षित पासवर्ड तयार करा',
+        backToLogin: 'लॉगिनवर परत जा',
+        privacyNote: 'सुरक्षेसाठी, पासवर्ड रीसेट लिंक 1 तासानंतर संपुष्टात येतात.'
+      },
+
+      // Reset password page
+      reset: {
+        title: 'नवा पासवर्ड सेट करा',
+        subtitle: 'आपल्या खात्यासाठी मजबूत पासवर्ड तयार करा',
+        newPassword: 'नवा पासवर्ड',
+        newPasswordPlaceholder: 'नवा पासवर्ड प्रविष्ट करा',
+        confirmPassword: 'नवा पासवर्ड पुष्टी करा',
+        confirmPasswordPlaceholder: 'नवा पासवर्ड पुष्टी करा',
+        resetButton: 'पासवर्ड रीसेट करा',
+        resetting: 'रीसेट होत आहे...',
+        successTitle: 'पासवर्ड रीसेट पूर्ण',
+        successMessage: 'आपला पासवर्ड यशस्वीरित्या रीसेट झाला आहे. आपण आता आपल्या नवीन पासवर्डसह साइन इन करू शकता.',
+        goToLogin: 'लॉगिनवर जा',
+        invalidTokenTitle: 'अवैध रीसेट लिंक',
+        invalidTokenMessage: 'हे पासवर्ड रीसेट लिंक अवैध किंवा कालबाह्य झाले आहे.',
+        invalidToken: 'अवैध किंवा कालबाह्य रीसेट लिंक',
+        requestNewLink: 'नवीन रीसेट लिंक विनंती करा',
+        backToLogin: 'लॉगिनवर परत जा'
+      }
+    },
+  },
 };
 
 // Helper function to get translation

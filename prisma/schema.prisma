@@ -1,0 +1,477 @@
+// CivisLaw Database Schema
+// Privacy-first judicial understanding platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER MANAGEMENT MODELS
+// ============================================
+
+// Core User Model
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  phoneNumber     String?   @unique
+  passwordHash    String    // Argon2id hash
+  encryptedMasterKey String? // Key to decrypt local data, encrypted by password
+  
+  role            UserRole  @default(CITIZEN)
+  isActive        Boolean   @default(true)
+  isVerified      Boolean   @default(false)
+  
+  // Profile & Preferences
+  fullName        String?
+  avatar          String?
+  language        String    @default("en")
+  timezone        String    @default("UTC")
+  preferences     Json?     // { notifications: true, theme: "light", etc }
+  
+  // Security
+  mfaEnabled      Boolean   @default(false)
+  mfaSecret       String?   // Encrypted MFA secret
+  lastLoginAt     DateTime?
+  lastLoginIp     String?
+  
+  // GDPR / Privacy
+  dataRetentionOptIn Boolean @default(true)
+  marketingOptIn   Boolean   @default(false)
+  
+  // Relations
+  sessions        Session[]
+  auditLogs       AuditLog[]
+  consents        ConsentRecord[]
+  documents       Document[]
+  statements      VictimStatement[]
+  ngoProfile      NGOProfile?
+  accessRequests  AccessRequest[]  @relation("AccessRequester")
+  receivedRequests AccessRequest[] @relation("AccessReviewer")
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+}
+
+enum UserRole {
+  CITIZEN
+  VICTIM
+  NGO
+  LEGAL_AID
+  ADMIN
+}
+
+// Session Management (Supports multi-device, auto-timeout)
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  refreshToken String   @unique
+  
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  expires      DateTime
+  refreshExpires DateTime
+  
+  deviceInfo   String?  // Browser/OS string (not full fingerprint)
+  deviceType   String?  // "mobile", "desktop", "tablet"
+  ipAddress    String?  // Anonymized (last octet masked)
+  location     String?  // Approximate city/region
+  
+  isCurrent    Boolean  @default(false)
+  lastActiveAt DateTime @default(now())
+  
+  createdAt    DateTime @default(now())
+  
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([expires])
+}
+
+// Consent & Privacy (Granular control for data sharing)
+model ConsentRecord {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  resourceId  String   // ID of the document/statement
+  resourceType ConsentResourceType
+  
+  grantedTo   String   // NGO ID, "SYSTEM_AI", or partner code
+  grantedToName String? // Human-readable name for display
+  
+  status      ConsentStatus @default(GRANTED)
+  grantedAt   DateTime  @default(now())
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  revocationReason String?
+  
+  // Audit trail
+  ipAddress   String?
+  userAgent   String?
+  
+  @@unique([userId, resourceId, grantedTo])
+  @@index([userId])
+  @@index([status])
+  @@index([grantedTo])
+}
+
+enum ConsentResourceType {
+  DOCUMENT
+  STATEMENT
+  AUDIO_RECORDING
+  TRANSLATION
+  CASE_FILE
+}
+
+enum ConsentStatus {
+  GRANTED
+  REVOKED
+  EXPIRED
+  PENDING
+}
+
+// Audit Logging (Encrypted, privacy-preserving)
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  
+  action      AuditAction
+  category    String   // "AUTH", "DOCUMENT", "CONSENT", "ADMIN"
+  
+  // Encrypted metadata (never contains PII or sensitive content)
+  metadata    String   // AES-256 encrypted JSON
+  metadataIv  String   // Initialization vector for decryption
+  
+  severity    LogSeverity @default(INFO)
+  
+  // Privacy-preserving identifiers
+  ipHash      String?  // Hashed IP (sha256 truncated)
+  sessionHash String?  // Hashed session token
+  
+  timestamp   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([action])
+  @@index([category])
+  @@index([timestamp])
+  @@index([severity])
+}
+
+enum AuditAction {
+  // Authentication
+  LOGIN
+  LOGOUT
+  LOGIN_FAILED
+  PASSWORD_CHANGE
+  MFA_ENABLE
+  MFA_DISABLE
+  ACCOUNT_RECOVERY
+  SESSION_REVOKED
+  
+  // Document Operations
+  DOCUMENT_UPLOAD
+  DOCUMENT_VIEW
+  DOCUMENT_DOWNLOAD
+  DOCUMENT_DELETE
+  
+  // Statement Operations
+  STATEMENT_RECORD
+  STATEMENT_VIEW
+  STATEMENT_TRANSCRIBE
+  
+  // Consent Operations
+  CONSENT_GRANTED
+  CONSENT_REVOKED
+  CONSENT_REQUESTED
+  
+  // User Management
+  PROFILE_UPDATE
+  PREFERENCES_UPDATE
+  
+  // Admin Actions
+  ADMIN_USER_VIEW
+  ADMIN_USER_UPDATE
+  ADMIN_ROLE_CHANGE
+  ADMIN_ACCESS_GRANT
+  ADMIN_ACCESS_DENY
+  ADMIN_SYSTEM_CONFIG
+  
+  // System
+  DATA_EXPORT
+  DATA_DELETE_REQUEST
+}
+
+enum LogSeverity {
+  DEBUG
+  INFO
+  WARN
+  CRITICAL
+}
+
+// ============================================
+// DOCUMENT & STATEMENT MODELS
+// ============================================
+
+model Document {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  fileName        String
+  fileType        String   // "pdf", "doc", "txt", etc
+  fileSize        Int
+  fileHash        String   // SHA-256 hash for integrity
+  
+  encryptionKey   String?  // Encrypted per-document key
+  isEncrypted     Boolean  @default(true)
+  
+  status          DocumentStatus @default(PENDING)
+  
+  // Metadata (not content)
+  description     String?
+  tags            String[]
+  
+  // AI Processing
+  aiProcessed     Boolean  @default(false)
+  aiModelUsed     String?
+  aiConfidence    Float?
+  aiProcessedAt   DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum DocumentStatus {
+  PENDING
+  PROCESSING
+  READY
+  ERROR
+  DELETED
+}
+
+model VictimStatement {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title           String
+  description     String?
+  
+  // Audio file
+  audioUrl        String?
+  audioDuration   Int?     // seconds
+  audioSize       Int?
+  audioHash       String?
+  
+  // Transcription
+  transcription   String?  // Encrypted
+  isTranscribed   Boolean  @default(false)
+  
+  // Status
+  status          StatementStatus @default(DRAFT)
+  
+  // Consent tracking
+  consentRequired Boolean  @default(true)
+  sharedWith      String[] // List of NGO IDs
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+}
+
+enum StatementStatus {
+  DRAFT
+  REVIEW
+  FINAL
+  SHARED
+  ARCHIVED
+}
+
+// ============================================
+// NGO & PARTNER MANAGEMENT
+// ============================================
+
+model NGOProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  organizationName String
+  registrationNumber String?
+  taxId          String?
+  
+  website       String?
+  email         String?
+  phone         String?
+  address       String?
+  
+  // Region/Jurisdiction
+  region        String   // State/Region served
+  districts     String[] // Districts covered
+  
+  // Verification
+  isVerified    Boolean  @default(false)
+  verifiedAt    DateTime?
+  verifiedBy    String?
+  
+  // Statistics
+  casesHandled  Int      @default(0)
+  usersServed   Int      @default(0)
+  
+  // Settings
+  autoApprove   Boolean  @default(false)
+  notificationPreferences Json?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([region])
+  @@index([isVerified])
+}
+
+// Access Requests (NGO requesting user data)
+model AccessRequest {
+  id            String   @id @default(cuid())
+  
+  // Requester (NGO user)
+  requesterId   String
+  requester     User     @relation("AccessRequester", fields: [requesterId], references: [id])
+  
+  // Target User
+  targetUserId  String
+  targetUser    User     @relation("AccessReviewer", fields: [targetUserId], references: [id])
+  
+  // Request Details
+  resourceType  ConsentResourceType
+  resourceId    String?  // Optional specific document/statement
+  purpose       String   // Reason for access
+  duration      Int?     // Days requested
+  
+  status        AccessRequestStatus @default(PENDING)
+  
+  // Review
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  reviewNotes   String?
+  
+  expiresAt     DateTime?
+  
+  createdAt     DateTime @default(now())
+  
+  @@index([requesterId])
+  @@index([targetUserId])
+  @@index([status])
+}
+
+enum AccessRequestStatus {
+  PENDING
+  APPROVED
+  DENIED
+  CANCELLED
+  EXPIRED
+}
+
+// ============================================
+// ADMIN & SYSTEM MODELS
+// ============================================
+
+model SystemConfig {
+  id            String   @id @default(cuid())
+  key           String   @unique
+  value         Json
+  description   String?
+  
+  updatedAt     DateTime @updatedAt
+  updatedBy     String?
+}
+
+model MaintenanceWindow {
+  id            String   @id @default(cuid())
+  
+  scheduledStart DateTime
+  scheduledEnd   DateTime
+  actualEnd      DateTime?
+  
+  reason        String
+  affectedModules String[]
+  
+  isActive      Boolean  @default(false)
+  
+  createdAt     DateTime @default(now())
+}
+
+model Announcement {
+  id            String   @id @default(cuid())
+  
+  title         String
+  message       String
+  
+  type          AnnouncementType
+  priority      Int      @default(0) // Higher = more important
+  
+  targetRoles   UserRole[] // Who sees this
+  
+  startsAt      DateTime
+  expiresAt     DateTime?
+  
+  isActive      Boolean  @default(true)
+  
+  createdAt     DateTime @default(now())
+  
+  @@index([startsAt])
+  @@index([expiresAt])
+}
+
+enum AnnouncementType {
+  FEATURE
+  MAINTENANCE
+  SECURITY
+  GENERAL
+}
+
+// ============================================
+// ANALYTICS & METRICS (Aggregated, Anonymized)
+// ============================================
+
+model DailyMetrics {
+  id            String   @id @default(cuid())
+  
+  date          DateTime @db.Date
+  
+  // User Metrics
+  newUsers      Int      @default(0)
+  activeUsers   Int      @default(0)
+  usersByRole   Json?    // { citizen: 10, ngo: 2, admin: 1 }
+  
+  // Content Metrics
+  documentsUploaded Int @default(0)
+  statementsRecorded Int @default(0)
+  translationsGenerated Int @default(0)
+  
+  // Usage Metrics
+  pageViews     Int      @default(0)
+  apiCalls      Int      @default(0)
+  errors        Int      @default(0)
+  
+  // Language Distribution
+  languageUsage Json?    // { en: 100, hi: 50, ta: 30 }
+  
+  @@unique([date])
+  @@index([date])
+}
