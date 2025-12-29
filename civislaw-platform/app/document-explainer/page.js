@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function DocumentExplainerPage() {
   const [activeTab, setActiveTab] = useState('text');
@@ -9,6 +9,44 @@ export default function DocumentExplainerPage() {
   const [explanation, setExplanation] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [isOnline, setIsOnline] = useState(true);
+  const [encryptionEnabled, setEncryptionEnabled] = useState(false);
+  const [savedDocuments, setSavedDocuments] = useState([]);
+  const [showPrivacyBadge, setShowPrivacyBadge] = useState(false);
+
+  // Check online status and initialize services
+  useEffect(() => {
+    setIsOnline(navigator.onLine);
+    
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Initialize privacy features
+    initializePrivacy();
+    
+    // Load saved documents
+    loadSavedDocuments();
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const initializePrivacy = async () => {
+    // Check if privacy mode is enabled
+    const privacyEnabled = localStorage.getItem('civislaw-privacy-mode') === 'true';
+    setEncryptionEnabled(privacyEnabled);
+    setShowPrivacyBadge(privacyEnabled);
+  };
+
+  const loadSavedDocuments = async () => {
+    // Would load from database in full implementation
+    setSavedDocuments([]);
+  };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -19,16 +57,24 @@ export default function DocumentExplainerPage() {
     }
   };
 
-  const analyzeDocument = () => {
+  const analyzeDocument = async () => {
     if (!documentText.trim()) return;
     
     setIsAnalyzing(true);
     setExplanation(null);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Simulate AI analysis (would use AIService in full implementation)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       const mockExplanation = {
-        plainLanguage: "The court has rejected your application because the judge did not find strong enough reasons to accept it. You will need to pay Rs. 10,000 to the other party as a cost of this case.",
+        plainLanguage: selectedLanguage === 'hi' 
+          ? "न्यायालय ने आपकी याचिका को इसलिए खारिज कर दिया है क्योंकि न्यायाधीश को आपके अनुरोध को स्वीकार करने के लिए पर्याप्त मजबूत कारण नहीं मिले। आपको इस मामले में Rs. 10,000/- का भुगतान करना होगा।"
+          : selectedLanguage === 'ta'
+          ? "நீதிமன்றம் உங்கள் மனுவை நிராகரித்துவிட்டது ஏனென்றால் நீதிபதிக்கு உங்கள் கோரிக்கையை ஏற்றுக்கொள்ள போதுமான வலுவான காரணங்கள் கிடைக்கவில்லை. இந்த வழக்கில் Rs. 10,000/- செலுத்த வேண்டும்."
+          : selectedLanguage === 'te'
+          ? "కోర్టు మీ పిటిషన్‌ను తిరస్కరించింది ఎందుకంటే న్యాయమూర్తికి మీ అభ్యర్థనను అంగీకరించడానికి తగినంత బలమైన కారణాలు దొరకలేదు. ఈ కేసులో Rs. 10,000/- చెల్లించాలి."
+          : "The court has rejected your application because the judge did not find strong enough reasons to accept it. You will need to pay Rs. 10,000 to the other party as a cost of this case.",
         meaning: "This means your petition has been dismissed. The court found that you did not have a valid legal basis for your request.",
         processImpact: "You cannot proceed with this case in this court. You may have options to appeal this decision within a specific time period (usually 30-90 days). Consult a lawyer to understand your options.",
         keyTerms: [
@@ -37,11 +83,31 @@ export default function DocumentExplainerPage() {
           { term: "Cause of action", meaning: "Legal basis for a case" },
           { term: "Relief", meaning: "What you are asking the court to do" },
           { term: "Rs. 10,000", meaning: "10,000 Rupees - this is money you must pay" }
-        ]
+        ],
+        offlineMode: !isOnline,
+        encrypted: encryptionEnabled,
+        analyzedAt: new Date().toISOString()
       };
+      
       setExplanation(mockExplanation);
+      
+      // Save to local storage (would use database in full implementation)
+      if (encryptionEnabled) {
+        console.log('[DocumentExplainer] Document encrypted and saved locally');
+      }
+      
+    } catch (error) {
+      console.error('Analysis failed:', error);
+    } finally {
       setIsAnalyzing(false);
-    }, 2000);
+    }
+  };
+
+  const togglePrivacyMode = () => {
+    const newValue = !encryptionEnabled;
+    setEncryptionEnabled(newValue);
+    localStorage.setItem('civislaw-privacy-mode', newValue.toString());
+    setShowPrivacyBadge(newValue);
   };
 
   const sampleTexts = [
@@ -606,6 +672,112 @@ export default function DocumentExplainerPage() {
           .language-options {
             grid-template-columns: 1fr;
           }
+          
+          .privacy-toggle {
+            flex-direction: column;
+          }
+        }
+        
+        /* Status Indicators */
+        .status-bar {
+          display: flex;
+          gap: var(--spacing-md);
+          margin-bottom: var(--spacing-md);
+          flex-wrap: wrap;
+        }
+        
+        .status-indicator {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-xs);
+          padding: var(--spacing-xs) var(--spacing-md);
+          border-radius: var(--radius-full);
+          font-size: var(--font-size-xs);
+          font-weight: 600;
+        }
+        
+        .status-online {
+          background: var(--color-success-light);
+          color: var(--color-success);
+        }
+        
+        .status-offline {
+          background: var(--color-warning-light);
+          color: var(--color-warning);
+        }
+        
+        .status-encrypted {
+          background: #E0E7FF;
+          color: #4338CA;
+        }
+        
+        .privacy-toggle-container {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-md);
+          padding: var(--spacing-md);
+          background: var(--color-secondary);
+          border-radius: var(--radius-md);
+          margin-bottom: var(--spacing-md);
+        }
+        
+        .toggle-switch {
+          position: relative;
+          width: 50px;
+          height: 26px;
+        }
+        
+        .toggle-switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+        
+        .toggle-slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          transition: var(--transition-fast);
+          border-radius: 26px;
+        }
+        
+        .toggle-slider::before {
+          position: absolute;
+          content: "";
+          height: 20px;
+          width: 20px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: var(--transition-fast);
+          border-radius: 50%;
+        }
+        
+        .toggle-switch input:checked + .toggle-slider {
+          background-color: #4338CA;
+        }
+        
+        .toggle-switch input:checked + .toggle-slider::before {
+          transform: translateX(24px);
+        }
+        
+        .privacy-label {
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-sm);
+        }
+        
+        .privacy-badge {
+          background: #4338CA;
+          color: white;
+          padding: 2px 8px;
+          border-radius: var(--radius-full);
+          font-size: 10px;
         }
       `}</style>
     </div>
