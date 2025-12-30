@@ -21,8 +21,17 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showDemoAccounts, setShowDemoAccounts] = useState(false);
 
   const registered = searchParams.get('registered');
+
+  const fillCredentials = (email, password) => {
+    setFormData(prev => ({
+      ...prev,
+      emailOrPhone: email,
+      password: password
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -236,6 +245,70 @@ export default function LoginPage() {
             {t('auth.privacyNotice', language)}
           </p>
         </div>
+
+        {/* Demo Accounts Section */}
+        <div style={styles.demoSection}>
+          <div style={styles.demoHeader} onClick={() => setShowDemoAccounts(!showDemoAccounts)}>
+            <span style={styles.demoIcon}>🧪</span>
+            <span style={styles.demoTitle}>
+              {language === 'hi' ? 'डेमो खाते (परीक्षण के लिए)' : 'Demo Accounts (for testing)'}
+            </span>
+            <span style={styles.demoToggle}>{showDemoAccounts ? '▲' : '▼'}</span>
+          </div>
+          
+          {showDemoAccounts && (
+            <div style={styles.demoAccounts}>
+              <p style={styles.demoSubtitle}>
+                {language === 'hi' 
+                  ? 'इन खातों का उपयोग करें विभिन्न सुविधाओं का परीक्षण करने के लिए:' 
+                  : 'Use these accounts to test different platform features:'}
+              </p>
+              
+              <table style={styles.demoTable}>
+                <thead>
+                  <tr style={styles.demoTableHeader}>
+                    <th style={styles.demoTh}>{language === 'hi' ? 'भूमिका' : 'Role'}</th>
+                    <th style={styles.demoTh}>{language === 'hi' ? 'ईमेल' : 'Email'}</th>
+                    <th style={styles.demoTh}>{language === 'hi' ? 'पासवर्ड' : 'Password'}</th>
+                    <th style={styles.demoTh}>{language === 'hi' ? 'क्लिक' : 'Action'}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={styles.demoRow} onClick={() => fillCredentials('citizen@test.com', 'Citizen@123!')}>
+                    <td style={styles.demoTd}><span style={styles.roleBadgeCitizen}>👤 Citizen</span></td>
+                    <td style={styles.demoTd}>citizen@test.com</td>
+                    <td style={styles.demoTd}>Citizen@123!</td>
+                    <td style={styles.demoTd}><button style={styles.copyButton}>Use</button></td>
+                  </tr>
+                  <tr style={styles.demoRow} onClick={() => fillCredentials('victim@test.com', 'Victim@123!')}>
+                    <td style={styles.demoTd}><span style={styles.roleBadgeVictim}>🎗️ Victim</span></td>
+                    <td style={styles.demoTd}>victim@test.com</td>
+                    <td style={styles.demoTd}>Victim@123!</td>
+                    <td style={styles.demoTd}><button style={styles.copyButton}>Use</button></td>
+                  </tr>
+                  <tr style={styles.demoRow} onClick={() => fillCredentials('ngo@test.com', 'NGO@123!')}>
+                    <td style={styles.demoTd}><span style={styles.roleBadgeNGO}>🤝 NGO</span></td>
+                    <td style={styles.demoTd}>ngo@test.com</td>
+                    <td style={styles.demoTd}>NGO@123!</td>
+                    <td style={styles.demoTd}><button style={styles.copyButton}>Use</button></td>
+                  </tr>
+                  <tr style={styles.demoRow} onClick={() => fillCredentials('legalaid@test.com', 'LegalAid@123!')}>
+                    <td style={styles.demoTd}><span style={styles.roleBadgeLegalAid}>⚖️ Legal Aid</span></td>
+                    <td style={styles.demoTd}>legalaid@test.com</td>
+                    <td style={styles.demoTd}>LegalAid@123!</td>
+                    <td style={styles.demoTd}><button style={styles.copyButton}>Use</button></td>
+                  </tr>
+                  <tr style={styles.demoRow} onClick={() => fillCredentials('admin@civislaw.in', 'Admin@123!')}>
+                    <td style={styles.demoTd}><span style={styles.roleBadgeAdmin}>🛡️ Admin</span></td>
+                    <td style={styles.demoTd}>admin@civislaw.in</td>
+                    <td style={styles.demoTd}>Admin@123!</td>
+                    <td style={styles.demoTd}><button style={styles.copyButton}>Use</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -252,7 +325,7 @@ const styles = {
   },
   card: {
     width: '100%',
-    maxWidth: '450px',
+    maxWidth: '600px',
     backgroundColor: '#FFFFFF',
     borderRadius: '12px',
     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
@@ -418,5 +491,131 @@ const styles = {
     color: '#64748B',
     textAlign: 'center',
     lineHeight: '1.5'
+  },
+  demoSection: {
+    marginTop: '24px',
+    border: '1px solid #E2E8F0',
+    borderRadius: '8px',
+    overflow: 'hidden'
+  },
+  demoHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '12px 16px',
+    backgroundColor: '#F8FAFC',
+    cursor: 'pointer',
+    userSelect: 'none'
+  },
+  demoIcon: {
+    fontSize: '16px'
+  },
+  demoTitle: {
+    flex: 1,
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#0F172A'
+  },
+  demoToggle: {
+    fontSize: '12px',
+    color: '#64748B'
+  },
+  demoAccounts: {
+    padding: '16px',
+    backgroundColor: '#FFFFFF'
+  },
+  demoSubtitle: {
+    fontSize: '13px',
+    color: '#64748B',
+    marginBottom: '12px'
+  },
+  demoTable: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: '12px'
+  },
+  demoTableHeader: {
+    backgroundColor: '#F1F5F9'
+  },
+  demoTh: {
+    padding: '8px 12px',
+    textAlign: 'left',
+    fontWeight: '600',
+    color: '#374151',
+    borderBottom: '2px solid #E2E8F0'
+  },
+  demoRow: {
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
+  },
+  demoTd: {
+    padding: '8px 12px',
+    borderBottom: '1px solid #E2E8F0',
+    color: '#374151'
+  },
+  copyButton: {
+    padding: '4px 8px',
+    backgroundColor: '#3B82F6',
+    color: '#FFFFFF',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '11px',
+    cursor: 'pointer',
+    fontWeight: '500'
+  },
+  roleBadgeCitizen: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    padding: '2px 8px',
+    backgroundColor: '#DBEAFE',
+    color: '#1D4ED8',
+    borderRadius: '12px',
+    fontSize: '11px',
+    fontWeight: '500'
+  },
+  roleBadgeVictim: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    padding: '2px 8px',
+    backgroundColor: '#FCE7F3',
+    color: '#BE185D',
+    borderRadius: '12px',
+    fontSize: '11px',
+    fontWeight: '500'
+  },
+  roleBadgeNGO: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    padding: '2px 8px',
+    backgroundColor: '#D1FAE5',
+    color: '#047857',
+    borderRadius: '12px',
+    fontSize: '11px',
+    fontWeight: '500'
+  },
+  roleBadgeLegalAid: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    padding: '2px 8px',
+    backgroundColor: '#FEF3C7',
+    color: '#B45309',
+    borderRadius: '12px',
+    fontSize: '11px',
+    fontWeight: '500'
+  },
+  roleBadgeAdmin: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    padding: '2px 8px',
+    backgroundColor: '#FEE2E2',
+    color: '#DC2626',
+    borderRadius: '12px',
+    fontSize: '11px',
+    fontWeight: '500'
   }
 };

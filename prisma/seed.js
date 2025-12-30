@@ -101,6 +101,54 @@ async function main() {
   });
   console.log('✅ Test NGO created:', ngoUser.email);
 
+  // Create test victim user
+  const victimPasswordHash = await argon2.hash('Victim@123!', {
+    type: argon2.argon2id,
+    memoryCost: 2 ** 16,
+    timeCost: 5,
+    parallelism: 1,
+  });
+
+  const victimUser = await prisma.user.upsert({
+    where: { email: 'victim@test.com' },
+    update: {},
+    create: {
+      email: 'victim@test.com',
+      passwordHash: victimPasswordHash,
+      fullName: 'Test Victim',
+      role: 'VICTIM',
+      isActive: true,
+      isVerified: true,
+      language: 'en',
+      timezone: 'Asia/Kolkata',
+    },
+  });
+  console.log('✅ Test victim created:', victimUser.email);
+
+  // Create test legal aid user
+  const legalAidPasswordHash = await argon2.hash('LegalAid@123!', {
+    type: argon2.argon2id,
+    memoryCost: 2 ** 16,
+    timeCost: 5,
+    parallelism: 1,
+  });
+
+  const legalAidUser = await prisma.user.upsert({
+    where: { email: 'legalaid@test.com' },
+    update: {},
+    create: {
+      email: 'legalaid@test.com',
+      passwordHash: legalAidPasswordHash,
+      fullName: 'Test Legal Aid',
+      role: 'LEGAL_AID',
+      isActive: true,
+      isVerified: true,
+      language: 'en',
+      timezone: 'Asia/Kolkata',
+    },
+  });
+  console.log('✅ Test legal aid created:', legalAidUser.email);
+
   // Create system configuration
   const configs = [
     {
@@ -157,10 +205,17 @@ async function main() {
   console.log('✅ Welcome announcement created');
 
   console.log('🎉 Database seed completed successfully!');
-  console.log('\n📋 Test Accounts:');
-  console.log('   Admin: admin@civislaw.in / Admin@123!');
-  console.log('   Citizen: citizen@test.com / Citizen@123!');
-  console.log('   NGO: ngo@test.com / NGO@123!');
+  console.log('\n📋 Demo Accounts for Testing:');
+  console.log('┌─────────────────────────────────────────────────────────┐');
+  console.log('│ Role          │ Email                    │ Password    │');
+  console.log('├─────────────────────────────────────────────────────────┤');
+  console.log('│ 👤 Citizen    │ citizen@test.com         │ Victim@123! │');
+  console.log('│ 🎗️ Victim     │ victim@test.com          │ Victim@123! │');
+  console.log('│ 🤝 NGO        │ ngo@test.com             │ NGO@123!    │');
+  console.log('│ ⚖️ Legal Aid  │ legalaid@test.com       │ LegalAid@123! │');
+  console.log('│ 🛡️ Admin      │ admin@civislaw.in        │ Admin@123!  │');
+  console.log('└─────────────────────────────────────────────────────────┘');
+  console.log('\n💡 Tip: Use these accounts to test different platform features!');
 }
 
 main()
