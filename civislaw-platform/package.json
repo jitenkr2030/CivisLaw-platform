@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "next dev",
     "prebuild": "mkdir -p tmp",
-    "build": "next build",
+    "build": "bash vercel-build.sh",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate || true",
+    "postinstall": "prisma generate || true; mkdir -p tmp || true",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
