@@ -84,7 +84,7 @@ export async function POST(request) {
     }
 
     // Check if account is active
-    if (user.status !== 'ACTIVE') {
+    if (!user.isActive) {
       return NextResponse.json(
         { success: false, error: 'This account has been deactivated. Please contact support.', code: 'AUTH_104' },
         { status: 403 }
@@ -155,7 +155,7 @@ export async function POST(request) {
       fullName: user.fullName,
       phoneNumber: user.phoneNumber,
       role: user.role,
-      status: user.status,
+      isActive: user.isActive,
       language: user.language,
     };
 
