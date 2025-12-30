@@ -27,6 +27,12 @@ export default function HomePage() {
               <Link href="/recorder" className="btn btn-outline btn-large">
                 🎤 {t('nav.statementRecorder', language)}
               </Link>
+              <Link href="/login" className="btn btn-secondary btn-large">
+                🔐 {language === 'hi' ? 'लॉगिन' : 'Login'}
+              </Link>
+              <Link href="/register" className="btn btn-white btn-large">
+                📝 {language === 'hi' ? 'रजिस्टर' : 'Register'}
+              </Link>
             </div>
           </div>
           

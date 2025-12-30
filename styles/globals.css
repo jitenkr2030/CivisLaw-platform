@@ -289,6 +289,20 @@ a:hover {
   text-decoration: none;
 }
 
+.btn-white {
+  background: white;
+  color: var(--color-primary);
+  border: 2px solid white;
+}
+
+.btn-white:hover,
+.btn-white:focus {
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  border-color: var(--color-secondary);
+  text-decoration: none;
+}
+
 .btn-large {
   padding: var(--spacing-lg) var(--spacing-xl);
   font-size: var(--font-size-md);
