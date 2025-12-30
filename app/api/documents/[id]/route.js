@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { verifyToken } from '@/lib/jwt';
 
-const prisma = new PrismaClient';
+const prisma = new PrismaClient();
 
 // GET - Get single document
 export async function GET(request, { params }) {

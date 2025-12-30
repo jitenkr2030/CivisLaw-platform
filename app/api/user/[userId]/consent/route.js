@@ -3,7 +3,7 @@
 
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { hashIp, checkRateLimit } from '../../lib/auth.js';
+import { hashIp, checkRateLimit } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 

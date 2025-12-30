@@ -14,7 +14,7 @@ import {
   checkRateLimit,
   generateToken,
   getTokenExpiration,
-} from '../../lib/auth.js';
+} from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
