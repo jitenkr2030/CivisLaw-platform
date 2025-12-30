@@ -53,7 +53,7 @@ export async function POST(request) {
         fullName: true,
         passwordHash: true,
         role: true,
-        status: true,
+        isActive: true,
         language: true,
         createdAt: true,
         lastLoginAt: true
